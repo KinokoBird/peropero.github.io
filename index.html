@@ -4,8 +4,8 @@
   <title>RPG風ゲーム</title>
   <style>
     #game-container {
-      width: 800px;
-      height: 600px;
+      width: 900;
+      height: 800px;
       border: 1px solid black;
       position: relative;
       background-image: url('sankaku02.jpg');
@@ -118,11 +118,47 @@
       pointer-events: none; /* マウスイベントを受け付けない */
       z-index: 9998; /* バリアがプレイヤーの上に表示されるように */
     }
+#game-start-popup {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px;
+  height: 200px;
+  background-color: white;
+  border: 2px solid black;
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+}
+#start-button {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+#game-info-container {
+  position: absolute;
+  top: -250px;
+  right: -500px;
+  text-align: right;
+  font-size: 30px;
+  color: white;
+  font-family: Arial, sans-serif;
+  display: block; /* テキストを常に表示 */
+}
+
+.game-info {
+  margin-bottom: 5px;
+}
   </style>
   <audio id="shot-audio" src="/ショット.mp3"></audio>
   <audio id="explosion-audio" src="/爆発2.mp3"></audio>
   <audio id="game-over-audio" src="/未熟.mp3"></audio>
   <audio id="game-retry-audio" src="/決定.mp3"></audio>
+  <audio id="start-audio" src="/開始.mp3"></audio>
+  <audio id="damage-audio" src="/痛い.mp3"></audio>
   </head>
 <body>
   <div id="game-container">
@@ -137,6 +173,16 @@
   <!-- ボスキャラのHPバー -->
   <div id="boss-hp-bar" class="hp-bar"></div>
   <div id="boss-hp-display" class="hp-display"></div>
+  <!-- 追加: ゲームスタートポップアップ -->
+  <div id="game-start-popup">
+    <div id="game-start-message">ゲームをスタートしますか？</div>
+    <button id="start-button">スタート</button>
+    
+<div id="game-info-container">
+  <div class="game-info">カーソル操作：移動</div>
+  <div class="game-info">弾の発射：「R」キー</div>
+  <div class="game-info">バリア：「Shift」キー</div>
+</div>
   <script>
 
     var playerX = 100;
@@ -158,7 +204,7 @@
     var playerHP = 100;
     var playerMaxHP = 100;
     var isGameOver = false; // ゲームオーバー状態かどうかのフラグ
-    var isGameStart = false; // ゲームスタート状態かどうかのフラグ
+
     var isGameClear = false; // ゲームクリア状態かどうかのフラグ
     var isShooting = false; // 弾を発射中かどうかのフラグ
     var shootInterval = 500; // 弾の発射間隔（ミリ秒）
@@ -167,7 +213,10 @@
     var barrierDuration = 3000; // バリアの持続時間（ミリ秒）
     var barrierStartTime = 0; // バリアを発動した時刻
     var pauseButton = document.createElement("button");
+    var gameStartPopup = document.getElementById("game-start-popup");
+    var startButton = document.getElementById("start-button");
 
+    
     // プレイヤーのHPバー要素の作成
 	var playerHPBar = document.createElement("div");
 	playerHPBar.className = "hp-bar";
@@ -209,9 +258,9 @@
 	bossHPDisplay.style.color = "white";
 	bossHPDisplay.style.fontSize = "16px";
 	bossHPDisplay.style.transform = "scaleX(1) scaleY(1)"; /* 新しい行 */
-
-	// プレイヤーの初期状態を "shiki1.png" に設定する
-	player.style.backgroundImage = "url('shiki3.png')";
+	
+	// プレイヤーの初期表示を非表示にする
+player.style.display = "none";
 
 	document.addEventListener("keydown", function (event) {
 	var key = event.key;
@@ -245,8 +294,19 @@
     // 敵キャラクターの配置
     var numberOfEnemies = 10;
     
+
+    var enemies = document.getElementsByClassName("enemy");
+    setInterval(moveEnemies, 100); // 100ミリ秒ごとに敵キャラを移動
     
-    for (var i = 1; i <= numberOfEnemies; i++) {
+    // 追加: スタートボタン押下時の処理
+    startButton.addEventListener("click", function () {
+      var startAudio = document.getElementById("start-audio");
+      startAudio.currentTime = 0; // 再生位置を先頭に戻す
+      startAudio.play();
+      isGameStart = true; // ゲームスタート状態にする
+      gameStartPopup.style.display = "none"; // ポップアップを非表示にする
+      
+      for (var i = 1; i <= numberOfEnemies; i++) {
       var enemy = document.createElement("div");
       enemy.className = "enemy";
       enemy.id = i; // 敵キャラクターごとに一意のIDを設定
@@ -259,15 +319,18 @@
     
       enemy.style.left = enemyX + "px";
       enemy.style.top = enemyY + "px";
-      gameContainer.appendChild(enemy);
-    
+      if(isGameStart){
+        gameContainer.appendChild(enemy);
+        // プレイヤーの初期表示を表示する
+  player.style.display = "block";
+      }
       // 倒された状態を初期化
       isDefeated[i] = false;
     }
-    
-    var enemies = document.getElementsByClassName("enemy");
-    setInterval(moveEnemies, 100); // 100ミリ秒ごとに敵キャラを移動
-
+    })
+    // 追加: ゲームスタートポップアップの表示
+    showGameStartPopup();
+    setInterval(updateBarrierPosition, 16); // 16ミリ秒ごとにバリアの位置を更新
 
 function moveEnemies() {
   for (var i = 0; i < enemies.length; i++) {
@@ -361,6 +424,7 @@ function checkCollision() {
       }
       // 敵と接触した場合のダメージ処理
       playerTakeDamage(1);
+
     }
   }
 
@@ -657,8 +721,12 @@ function defeatBossCharacter() {
 
 // プレイヤーがダメージを受けた時の処理
 function playerTakeDamage(damage) {
+  var damageAudio = document.getElementById("damage-audio");
+  damageAudio.currentTime = 0; // 再生位置を先頭に戻す
+  damageAudio.play();
   playerHP -= damage;
   updatePlayerHPDisplay();
+  
 
   // HPの数値とHPバーを更新する
   playerHPDisplay.textContent = "HP: " + playerHP;
@@ -918,7 +986,6 @@ function updateBarrierPosition() {
     barrier.style.top = barrierY + "px";
   }
 }
-    
     // バリアの破壊タイマーの処理
 function destroyBarrier() {
   isBarrierActive = false;
@@ -932,8 +999,15 @@ function playSound(soundFile) {
   var audio = new Audio(soundFile);
   audio.play();
 }
+function playSound(soundFile) {
+  var audio = new Audio(soundFile);
+  audio.play();
+}
 
-    setInterval(updateBarrierPosition, 16); // 16ミリ秒ごとにバリアの位置を更新
+// 追加: ゲームスタートポップアップを表示する関数
+function showGameStartPopup() {
+  gameStartPopup.style.display = "block";
+}
   </script>
 </body>
 </html>
