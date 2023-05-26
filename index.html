@@ -16,7 +16,7 @@
       position: absolute;
       width: 120px;
       height: 120px;
-      background-image: url('shiki1.png');
+      background-image: url('shiki3.png');
       background-size: cover;
       transition: left 0.2s, top 0.2s;
     }
@@ -211,19 +211,11 @@
 	bossHPDisplay.style.transform = "scaleX(1) scaleY(1)"; /* 新しい行 */
 
 	// プレイヤーの初期状態を "shiki1.png" に設定する
-	player.style.backgroundImage = "url('shiki1.png')";
+	player.style.backgroundImage = "url('shiki3.png')";
 
 	document.addEventListener("keydown", function (event) {
 	var key = event.key;
-    
-      if (key === "1") {
-        player.style.backgroundImage = "url('shiki1.png')";
-      } else if (key === "2") {
-        player.style.backgroundImage = "url('shiki2.png')";
-      } else if (key === "3") {
-        player.style.backgroundImage = "url('shiki3.png')";
-      } else if (key === "r" || key === "R") {
-        // 「r」ボタンが押されたら弾を発射する
+
         if (key === "r" || key === "R") {
     if (!isShooting && Date.now() - lastShootTime >= shootInterval) {
       // 弾を発射中でなく、前回の発射から一定時間以上経過している場合に発射する
@@ -231,7 +223,6 @@
       lastShootTime = Date.now();
     }
   }
-      }
     });
     
     document.addEventListener("keyup", function (event) {
@@ -254,24 +245,6 @@
     // 敵キャラクターの配置
     var numberOfEnemies = 10;
     
-    		bossCharacter = document.createElement("div");
-		bossCharacter.className = "boss";
-		bossCharacter.style.width = "125px";
-		bossCharacter.style.height = "125px";
-		bossCharacter.style.backgroundImage = "url('enemy3.png')";
-		bossCharacter.style.backgroundSize = "cover";
-		bossCharacter.style.position = "absolute";
-
-		// ボスキャラの出現位置をランダムに設定する
-		bossCharacter.style.left =
-		  Math.floor(Math.random() * (gameContainer.clientWidth - bossCharacter.offsetWidth)) + "px";
-		bossCharacter.style.top =
-		  Math.floor(Math.random() * (gameContainer.clientHeight - bossCharacter.offsetHeight)) + "px";
-
-		gameContainer.appendChild(bossCharacter);
-
-		bossCharacter.appendChild(bossHPBar);
-		bossCharacter.appendChild(bossHPDisplay);
     
     for (var i = 1; i <= numberOfEnemies; i++) {
       var enemy = document.createElement("div");
@@ -447,15 +420,6 @@ function movePlayerTowardsCursor() {
   var speed = 5;
 
   var playerImage = player.style.backgroundImage;
-
-  if (playerImage.includes("shiki2.png")) {
-    speed = 1;
-  } else if (playerImage.includes("shiki1.png")) {
-    speed = 3;
-  } else if (playerImage.includes("shiki3.png")) {
-    speed = 10;
-  }
-
   if (Math.abs(targetX - playerX) <= speed && Math.abs(targetY - playerY) <= speed) {
     requestAnimationFrame(movePlayerTowardsCursor);
     return;
