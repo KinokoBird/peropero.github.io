@@ -723,63 +723,6 @@ function bossTakeDamage(damage) {
   }
 }
     
-    
-// ゲームの開始処理
-function showGameStartPopup() {
-  isGameStart = true; // ゲームスタート画面状態にする
-  
-  var gameStartPopup = document.createElement("div");
-  gameStartPopup.id = "game-start-popup";
-  gameStartPopup.textContent = "Game Start";
-  gameStartPopup.style.position = "absolute";
-  gameStartPopup.style.top = "50%";
-  gameStartPopup.style.left = "50%";
-  gameStartPopup.style.transform = "translate(-50%, -50%)";
-  gameStartPopup.style.fontFamily = "Arial, sans-serif";
-  gameStartPopup.style.fontSize = "48px";
-  gameStartPopup.style.color = "white";
-  gameStartPopup.style.backgroundColor = "black";
-  gameStartPopup.style.padding = "20px";
-  gameStartPopup.style.zIndex = "9999";
-  gameStartPopup.appendChild(gameStartPopup);
-
-  var startButton = document.createElement("button");
-  startButton.id = "start-button";
-  startButton.textContent = "Start";
-  startButton.style.display = "block";
-  startButton.style.marginTop = "20px";
-  startButton.style.padding = "10px 20px";
-  startButton.style.fontSize = "18px";
-  startButton.addEventListener("click", startGame);
-  gameStartPopup.appendChild(startButton);
-
-}
-
-// スタートボタンがクリックされた時の処理
-function startGame() {
-  var gameStartAudio = document.getElementById("game-start-audio");
-  gameStartAudio.currentTime = 0; // 再生位置を先頭に戻す
-  gameStartAudio.play();
-
-  isGameStart = false; // ゲームスタート状態を解除する
-  // ゲームスタートのポップアップを非表示にする
-  var gameStartPopup = document.getElementById("game-start-popup");
-  gameStartPopup.parentNode.removeChild(gameStartPopup);
-
-  //resetGame();
-  
-  // プレイヤーを再作成する
-  //gameContainer.appendChild(player);
-  
-  //updatePlayerHPDisplay(); // 追加
-
-  // GameOverポップアップとリセットボタンを削除する
-  gameContainer.removeChild(gameStartPopup);
-  gameContainer.removeChild(startButton);
-  
-  // リトライボタンを押下したら音を鳴らす
-  playSound("開始.wav");
-}
 
 // ゲームオーバーのポップアップとリトライボタンを表示する
 function showGameOverPopup() {
