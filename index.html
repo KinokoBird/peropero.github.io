@@ -353,8 +353,8 @@ document.addEventListener("mousemove", function (event) {
       var enemyX, enemyY;
     
       do {
-        enemyX = Math.floor(Math.random() * 750);
-        enemyY = Math.floor(Math.random() * 550);
+        enemyX = Math.floor(Math.random() * 1500);
+        enemyY = Math.floor(Math.random() * 1000);
       } while (Math.abs(enemyX - playerX) < 100 && Math.abs(enemyY - playerY) < 100);
     
       enemy.style.left = enemyX + "px";
@@ -753,7 +753,6 @@ function playerTakeDamage(damage) {
   damageAudio.currentTime = 0; // 再生位置を先頭に戻す
   damageAudio.play();
   playerHP -= damage;
-  updatePlayerHPDisplay();
   
   // HPの数値とHPバーを更新する
   playerHPDisplay.textContent = "HP: " + playerHP;
@@ -768,34 +767,11 @@ function playerTakeDamage(damage) {
   }
 }
 
-function updatePlayerHPBar() {
-  var hpPercentage = (playerHP / playerMaxHP) * 100;
-
-  playerHPBar.style.width = hpPercentage + "%";
-
-  if (playerHP <= 10) {
-    playerHPBar.style.backgroundColor = "red";
-  } else {
-    playerHPBar.style.backgroundColor = "green";
-  }
-}
 
 function updatePlayerHPDisplay() {
   playerHPDisplay.textContent = "HP: " + playerHP;
 }
 
-// ボスキャラがダメージを受けた時の処理
-function bossTakeDamage(damage) {
-  bossHP -= damage;
-
-  // HPの数値とHPバーを更新する
-  bossHPDisplay.textContent = "HP: " + bossHP;
-  bossHPBar.style.width = (bossHP / 100) * 100 + "%";
-
-  if (bossHP <= 0) {
-    defeatBossCharacter();
-  }
-}
 
 // リトライボタンがクリックされた時の処理
 function retryGame() {
@@ -803,7 +779,7 @@ function retryGame() {
   gameRetryAudio.currentTime = 0; // 再生位置を先頭に戻す
   gameRetryAudio.play();
 
-  isGameOver = false; // ゲームオーバー状態を解除する
+ isGameOver = false; // ゲームオーバー状態を解除する
   // ゲームオーバーのポップアップを非表示にする
   var gameOverPopup = document.getElementById("game-over-popup");
   gameOverPopup.parentNode.removeChild(gameOverPopup);
@@ -825,6 +801,7 @@ function retryGame() {
   bossHP = 30;
   updateBossHPBar();
   bossHPBar.style.width = "100%";
+  
 }
 
 function resetGame() {
@@ -839,15 +816,50 @@ function resetGame() {
   // プレイヤーのHPをリセット
   playerHP = 50;
   playerHPDisplay.textContent = "HP: " + playerHP;
-  playerHPBar.style.width = "30%";
+  playerHPBar.style.width = "50%";
 
   // 敵キャラクターの再配置と倒された状態の初期化
   for (var i = 0; i < enemies.length; i++) {
     var enemy = enemies[i];
+      var enemyX, enemyY;
+
+  do {
+    enemyX = Math.floor(Math.random() * (gameContainer.clientWidth - enemy.clientWidth));
+    enemyY = Math.floor(Math.random() * (gameContainer.clientHeight - enemy.clientHeight));
+  } while (Math.abs(enemyX - playerX) < 100 && Math.abs(enemyY - playerY) < 100);
+
+  enemy.style.left = enemyX + "px";
+  enemy.style.top = enemyY + "px";
     enemy.style.display = "block";
     isDefeated[enemy.id] = false;
   }
 
+  // ボスキャラクターの削除
+  if (bossCharacter !== null) {
+    gameContainer.removeChild(bossCharacter);
+    bossCharacter = null;
+  }
+
+  // 倒された敵キャラクター数のリセット
+  defeatedEnemies = 0;
+  bossHP = 30;
+  updateBossHPBar();
+  bossHPBar.style.width = "100%";
+}
+
+// ボスキャラがダメージを受けた時の処理
+function bossTakeDamage(damage) {
+  bossHP -= damage;
+
+  // HPの数値とHPバーを更新する
+  bossHPDisplay.textContent = "HP: " + bossHP;
+  bossHPBar.style.width = (bossHP / 100) * 100 + "%";
+
+  if (bossHP <= 0) {
+    defeatBossCharacter();
+  }
+}
+    
 
 // ゲームオーバーのポップアップとリトライボタンを表示する
 function showGameOverPopup() {
@@ -886,22 +898,6 @@ function showGameOverPopup() {
   // プレイヤーを削除する
   gameContainer.removeChild(player);
 }
-
-  // ボスキャラクターの削除
-  if (bossCharacter !== null) {
-    gameContainer.removeChild(bossCharacter);
-    bossCharacter = null;
-  }
-
-  // 倒された敵キャラクター数のリセット
-  defeatedEnemies = 0;
-  bossHP = 30;
-  updateBossHPBar();
-  bossHPBar.style.width = "100%";
-}
-
-
-
 function showRetryButton() {
   var retryButton = document.createElement("button");
   retryButton.textContent = "Retry";
@@ -919,7 +915,6 @@ function showRetryButton() {
   retryButton.style.color = "black";
   retryButton.style.boxShadow = "2px 2px 4px rgba(0, 0, 0, 0.2)";
   retryButton.addEventListener("click", function () {
-    location.reload();
   });
 
   gameContainer.appendChild(retryButton);
