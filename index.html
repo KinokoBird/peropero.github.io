@@ -190,6 +190,7 @@
   <audio id="shot-audio" src="/ショット.mp3"></audio>
   <audio id="explosion-audio" src="/爆発2.mp3"></audio>
   <audio id="game-over-audio" src="/未熟.mp3"></audio>
+  <audio id="game-clear-audio" src="/クリア.mp3"></audio>
   <audio id="game-retry-audio" src="/決定.mp3"></audio>
   <audio id="start-audio" src="/開始.mp3"></audio>
   <audio id="damage-audio" src="/痛い.mp3"></audio>
@@ -1052,7 +1053,7 @@ function showGameClearPopup() {
   isGameOver = true; // ゲームオーバー状態にする
   
   // 音声を再生
-  var gameClearAudio = document.getElementById("game-over-audio");
+  var gameClearAudio = document.getElementById("game-clear-audio");
   gameClearAudio.currentTime = 0; // 再生位置を先頭に戻す
   gameClearAudio.play();
   
