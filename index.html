@@ -86,6 +86,15 @@
       text-align: center;
       width: 50%;
     }
+    .hp-icon {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      background-image: url('ball.png');
+      background-size: cover;
+      top: 10px;
+      left: 130px;
+    }
 
     /* プレイヤーのHPバーと表示のスタイル */
     #player-hp-bar {
@@ -173,6 +182,8 @@
     .game-info {
      margin-bottom: 5px;
     }
+    
+
   </style>
   <audio id="shot-audio" src="/ショット.mp3"></audio>
   <audio id="explosion-audio" src="/爆発2.mp3"></audio>
@@ -186,13 +197,16 @@
       <div id="player"></div>
       <div id="player-hp-bar" class="player-hp-bar"></div>
       <!-- プレイヤーのHPバー -->
-      <div id="player-hp-display" class="player-hp-display"></div>
+      <div id="player-hp-display" class="player-hp-display">
+        <div class="hp-icon"></div>
+        <span id="player-hp-text"></span>
+      </div>
 </div>
   </div>
   <div id="score-display">Score: 0</div>
   <div id="game-clear">
     <div id="game-clear-message">ゲームクリア！</div> <button id="retry-button">リトライ</button> </div>
-
+    
   <!-- ボスキャラのHPバー -->
   <div id="boss-hp-bar" class="boss-hp-bar"></div>
   <div id="boss-hp-display" class="boss-hp-display"></div>
@@ -256,19 +270,19 @@
 	playerHPBar.style.height = "20px";
 	playerHPBar.style.backgroundColor = "green";
 	playerHPBar.style.position = "absolute";
-	playerHPBar.style.top = "20px";
-	playerHPBar.style.left = "170";
+	playerHPBar.style.top = "30px";
+	playerHPBar.style.left = "170px";
 
 
 	// プレイヤーのHP表示要素の作成
-	var playerHPDisplay = document.createElement("div");
+	var playerHPDisplay = document.getElementById("player-hp-display");
 	//playerHPDisplay.className = "player-hp-display";
-	playerHPDisplay.style.top = "20px";
+	playerHPDisplay.style.top = "10px";
+	playerHPDisplay.style.left = "170px";
 	playerHPDisplay.style.width = "50%";
 	playerHPDisplay.style.textAlign = "center";
 	playerHPDisplay.style.color = "white";
-	playerHPDisplay.style.fontSize = "16px";
-	playerHPDisplay.style.transform = "scaleX(1) scaleY(1)"; /* 新しい行 */
+	playerHPDisplay.style.fontSize = "20px";
 
 	// ボスキャラのHPバー要素の作成
 	var bossHPBar = document.createElement("div");
@@ -277,7 +291,7 @@
 	bossHPBar.style.height = "10px";
 	bossHPBar.style.backgroundColor = "purple";
 	bossHPBar.style.position = "absolute";
-	bossHPBar.style.top = "-20px";
+	bossHPBar.style.top = "-10px";
 	bossHPBar.style.left = "0";
 
 	// ボスキャラのHP表示要素の作成
@@ -293,6 +307,7 @@
 	// プレイヤーの初期表示を非表示にする
 	player.style.display = "none";
 	playerHPBar.style.display = "none";
+	playerHPDisplay.style.display = "none";
 
 	document.addEventListener("keydown", function (event) {
 	var key = event.key;
@@ -364,6 +379,7 @@ document.addEventListener("mousemove", function (event) {
         // プレイヤーの初期表示を表示する
       player.style.display = "block";
       playerHPBar.style.display = "block";
+      playerHPDisplay.style.display = "block";
       
       }
       // 倒された状態を初期化
@@ -755,21 +771,24 @@ function playerTakeDamage(damage) {
   playerHP -= damage;
   
   // HPの数値とHPバーを更新する
-  playerHPDisplay.textContent = "HP: " + playerHP;
+  playerHPDisplay.textContent = "シキ　HP: " + playerHP;
   playerHPBar.style.width = (playerHP / playerMaxHP) * 50 + "%";
-  
+
   if (playerHP <= 10) {
-  playerHPBar.style.backgroundColor = "red";
-}
+    playerHPBar.style.backgroundColor = "red";
+  }
 
   if (playerHP <= 0) {
     showGameOverPopup();
   }
+       // アイコンの表示を追加
+  var hpIcon = document.getElementsByClassName("hp-icon")[0];
+  hpIcon.style.display = "block";
 }
 
 
 function updatePlayerHPDisplay() {
-  playerHPDisplay.textContent = "HP: " + playerHP;
+  playerHPDisplay.textContent = "シキ　HP: " + playerHP;
 }
 
 
@@ -815,7 +834,7 @@ function resetGame() {
 
   // プレイヤーのHPをリセット
   playerHP = 50;
-  playerHPDisplay.textContent = "HP: " + playerHP;
+  playerHPDisplay.textContent = "シキ　HP: " + playerHP;
   playerHPBar.style.width = "50%";
 
   // 敵キャラクターの再配置と倒された状態の初期化
