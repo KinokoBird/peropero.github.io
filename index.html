@@ -159,12 +159,15 @@
      border-radius: 10px;
      padding: 20px;
      text-align: center;
-     display: none;
     }
-    #play-again-button {
+    
+    #play-clear-button {
      position: absolute;
      top: 50%;
      left: 50%;
+     width: 300px;
+     height: 100px;
+     font-size: 50px;
      transform: translate(-50%, -50%);
     }
 
@@ -200,7 +203,6 @@
       <div id="player-hp-display" class="player-hp-display"></div>
       <div id="hp-icon"></div>
 </div>
-  </div>
   <div id="score-display">Score: 0</div>
   <div id="game-clear">
     <div id="game-clear-message">ゲームクリア！</div> <button id="retry-button">リトライ</button> </div>
@@ -220,7 +222,7 @@
 
 <div id="game-clear-popup">
   <div id="game-clear-message">ゲームクリア！</div>
-  <button id="play-again-button">再度遊ぶ</button>
+  <button id="play-clear-button">再度遊ぶ</button>
 </div>
 <div id="cursor-position"></div>
   <script>
@@ -240,7 +242,7 @@
     var defeatedEnemies = 0;
     var retryButton = document.getElementById("retry-button");
     var bossCharacter = null;
-    var bossHP = 30;
+    var bossHP = 5;
     var playerHP = 50;
     var playerMaxHP = 50;
     var isGameOver = false; // ゲームオーバー状態かどうかのフラグ
@@ -257,11 +259,10 @@
     var isBarrierActive = false; // バリアがアクティブかどうかのフラグ
     var barrierDuration = 3000; // バリアの持続時間（ミリ秒）
     var barrierStartTime = 0; // バリアを発動した時刻
-    var pauseButton = document.createElement("button");
     var gameStartPopup = document.getElementById("game-start-popup");
     var gameClearPopup = document.getElementById("game-clear-popup");
     var startButton = document.getElementById("start-button");
-    var clearButton = document.getElementById("play-again-button");
+    var clearButton = document.getElementById("play-clear-button");
 
     // プレイヤーのHPバー要素の作成
 	var playerHPBar = document.getElementById("player-hp-bar");
@@ -275,7 +276,7 @@
 	
 	// プレイヤーアイコン
 	var playerIcon = document.getElementById("hp-icon");
-
+	
 	// プレイヤーのHP表示要素の作成
 	var playerHPDisplay = document.getElementById("player-hp-display");
 	//playerHPDisplay.className = "player-hp-display";
@@ -311,17 +312,17 @@
 	playerHPBar.style.display = "none";
 	playerHPDisplay.style.display = "none";
 	playerIcon.style.display = "none";
+	gameClearPopup.style.display = "none";
 
 	document.addEventListener("keydown", function (event) {
-	var key = event.key;
-
-        if (key === "r" || key === "R") {
-    if (!isShooting && Date.now() - lastShootTime >= shootInterval) {
-      // 弾を発射中でなく、前回の発射から一定時間以上経過している場合に発射する
-      shootPowerBall();
-      lastShootTime = Date.now();
-    }
-  }
+	  var key = event.key;
+      if (key === "r" || key === "R") {
+        if (!isShooting && Date.now() - lastShootTime >= shootInterval) {
+          // 弾を発射中でなく、前回の発射から一定時間以上経過している場合に発射する
+          shootPowerBall();
+          lastShootTime = Date.now();
+        }
+      }
     });
     
     document.addEventListener("keyup", function (event) {
@@ -820,7 +821,38 @@ function retryGame() {
   
   // リトライボタンを押下したら音を鳴らす
   playSound("決定.mp3");
-  bossHP = 30;
+  bossHP = 5;
+  updateBossHPBar();
+  bossHPBar.style.width = "100%";
+  
+}
+
+//もう一度遊ぶボタンがクリックされた時の処理
+function replayGame() {
+  var gameRetryAudio = document.getElementById("game-retry-audio");
+  gameRetryAudio.currentTime = 0; // 再生位置を先頭に戻す
+  gameRetryAudio.play();
+
+ isGameOver = false; // ゲームオーバー状態を解除する
+  // ゲームオーバーのポップアップを非表示にする
+  var gameClearPopup = document.getElementById("game-clear-popup");
+  gameClearPopup.parentNode.removeChild(gameClearPopup);
+
+  // ゲームをリセットして再開するための処理を実装してください
+  // 例えば、プレイヤーと敵の初期位置のリセット、スコアのリセット、HPのリセットなどを行います
+  resetGame();
+  
+  // プレイヤーを再作成する
+  gameContainer.appendChild(player);
+  
+  updatePlayerHPDisplay(); // 追加
+  // GameOverポップアップとリセットボタンを削除する
+  gameContainer.removeChild(gameClearPopup);
+  gameContainer.removeChild(clearButton);
+  
+  // リトライボタンを押下したら音を鳴らす
+  playSound("決定.mp3");
+  bossHP = 5;
   updateBossHPBar();
   bossHPBar.style.width = "100%";
   
@@ -865,7 +897,7 @@ function resetGame() {
 
   // 倒された敵キャラクター数のリセット
   defeatedEnemies = 0;
-  bossHP = 30;
+  bossHP = 5;
   updateBossHPBar();
   bossHPBar.style.width = "100%";
 }
@@ -880,10 +912,10 @@ function bossTakeDamage(damage) {
 
   if (bossHP <= 0) {
     defeatBossCharacter();
+    showGameClearPopup();
   }
 }
     
-
 // ゲームオーバーのポップアップとリトライボタンを表示する
 function showGameOverPopup() {
   isGameOver = true; // ゲームオーバー状態にする
@@ -1014,13 +1046,45 @@ function playSound(soundFile) {
   var audio = new Audio(soundFile);
   audio.play();
 }
-function playSound(soundFile) {
-  var audio = new Audio(soundFile);
-  audio.play();
-}
 
 // 追加: ゲームクリアポップアップを表示する関数
 function showGameClearPopup() {
+  isGameOver = true; // ゲームオーバー状態にする
+  
+  // 音声を再生
+  var gameClearAudio = document.getElementById("game-over-audio");
+  gameClearAudio.currentTime = 0; // 再生位置を先頭に戻す
+  gameClearAudio.play();
+  
+  var gameClearPopup = document.createElement("div");
+  gameClearPopup.id = "game-clear-popup";
+  gameClearPopup.textContent = "Game Clear";
+  gameClearPopup.style.position = "absolute";
+  gameClearPopup.style.top = "50%";
+  gameClearPopup.style.left = "50%";
+  gameClearPopup.style.transform = "translate(-50%, -50%)";
+  gameClearPopup.style.fontFamily = "Arial, sans-serif";
+  gameClearPopup.style.fontSize = "48px";
+  gameClearPopup.style.color = "white";
+  gameClearPopup.style.backgroundColor = "black";
+  gameClearPopup.style.padding = "20px";
+  gameClearPopup.style.zIndex = "9999";
+  gameContainer.appendChild(gameClearPopup);
+
+  var clearButton = document.createElement("div");
+  clearButton.id = "play-clear-button";
+  clearButton.textContent = "もう一度遊ぶ";
+  clearButton.style.display = "block";
+  clearButton.style.backgroundColor = "white";
+  clearButton.style.marginTop = "20px";
+  clearButton.style.color = "black";
+  clearButton.style.padding = "10px 20px";
+  clearButton.style.fontSize = "50px";
+  clearButton.addEventListener("click", replayGame);
+  gameClearPopup.appendChild(clearButton);
+
+  // プレイヤーを削除する
+  gameContainer.removeChild(player);
   gameClearPopup.style.display = "block";
 }
 
