@@ -135,8 +135,33 @@
   position: absolute;
   top: 50%;
   left: 50%;
+  width: 300px;
+  height: 100px;
+  font-size: 50px;
   transform: translate(-50%, -50%);
 }
+
+#game-clear-popup {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px;
+  height: 200px;
+  background-color: white;
+  border: 2px solid black;
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+  display: none;
+}
+#play-again-button {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
 
 #game-info-container {
   position: absolute;
@@ -175,13 +200,17 @@
   <div id="boss-hp-display" class="hp-display"></div>
   <!-- 追加: ゲームスタートポップアップ -->
   <div id="game-start-popup">
-    <div id="game-start-message">ゲームをスタートしますか？</div>
     <button id="start-button">スタート</button>
     
 <div id="game-info-container">
   <div class="game-info">カーソル操作：移動</div>
   <div class="game-info">弾の発射：「R」キー</div>
   <div class="game-info">バリア：「Shift」キー</div>
+</div>
+
+<div id="game-clear-popup">
+  <div id="game-clear-message">ゲームクリア！</div>
+  <button id="play-again-button">再度遊ぶ</button>
 </div>
   <script>
 
@@ -200,7 +229,7 @@
     var defeatedEnemies = 0;
     var retryButton = document.getElementById("retry-button");
     var bossCharacter = null;
-    var bossHP = 100;
+    var bossHP = 30;
     var playerHP = 100;
     var playerMaxHP = 100;
     var isGameOver = false; // ゲームオーバー状態かどうかのフラグ
@@ -214,7 +243,9 @@
     var barrierStartTime = 0; // バリアを発動した時刻
     var pauseButton = document.createElement("button");
     var gameStartPopup = document.getElementById("game-start-popup");
+    var gameClearPopup = document.getElementById("game-clear-popup");
     var startButton = document.getElementById("start-button");
+    var clearButton = document.getElementById("play-again-button");
 
     
     // プレイヤーのHPバー要素の作成
@@ -717,6 +748,8 @@ function defeatBossCharacter() {
   gameContainer.removeChild(bossCharacter);
   bossCharacter = null;
   defeatedEnemies = 0;
+  showGameClearPopup();
+
 }
 
 // プレイヤーがダメージを受けた時の処理
@@ -781,11 +814,11 @@ function showGameOverPopup() {
 
   var retryButton = document.createElement("button");
   retryButton.id = "retry-button";
-  retryButton.textContent = "Retry";
+  retryButton.textContent = "リトライ";
   retryButton.style.display = "block";
   retryButton.style.marginTop = "20px";
   retryButton.style.padding = "10px 20px";
-  retryButton.style.fontSize = "18px";
+  retryButton.style.fontSize = "90px";
   retryButton.addEventListener("click", retryGame);
   gameOverPopup.appendChild(retryButton);
 
@@ -812,13 +845,15 @@ function retryGame() {
   gameContainer.appendChild(player);
   
   updatePlayerHPDisplay(); // 追加
-
   // GameOverポップアップとリセットボタンを削除する
   gameContainer.removeChild(gameOverPopup);
   gameContainer.removeChild(retryButton);
   
   // リトライボタンを押下したら音を鳴らす
   playSound("決定.mp3");
+  bossHP = 30;
+  updateBossHPBar();
+  bossHPBar.style.width = "100%";
 }
 
 function resetGame() {
@@ -850,60 +885,13 @@ function resetGame() {
 
   // 倒された敵キャラクター数のリセット
   defeatedEnemies = 0;
-
+  bossHP = 30;
+  updateBossHPBar();
+  bossHPBar.style.width = "100%";
   // ゲームの状態に応じて必要な処理を実装してください
 }
 
-function createBossCharacter() {
-  bossCharacter = document.createElement("div");
-  bossCharacter.className = "boss-character";
-  bossCharacter.style.left = "300px";
-  bossCharacter.style.top = "-100px";
-  gameContainer.appendChild(bossCharacter);
 
-  // ボスキャラクターの初期HPバー要素の作成
-  var bossHPBar = document.createElement("div");
-  bossHPBar.className = "hp-bar";
-  bossHPBar.style.width = "100%";
-  bossHPBar.style.height = "10px";
-  bossHPBar.style.backgroundColor = "purple";
-  bossHPBar.style.position = "absolute";
-  bossHPBar.style.top = "-20px";
-  bossHPBar.style.left = "0";
-  bossCharacter.appendChild(bossHPBar);
-
-  // ボスキャラクターの初期HP表示要素の作成
-  var bossHPDisplay = document.createElement("div");
-  bossHPDisplay.className = "hp-display";
-  bossHPDisplay.style.top = "-40px";
-  bossHPDisplay.style.width = "100%";
-  bossHPDisplay.style.textAlign = "center";
-  bossHPDisplay.style.color = "white";
-  bossHPDisplay.style.fontSize = "16px";
-  bossHPDisplay.textContent = "HP: 100";
-  bossCharacter.appendChild(bossHPDisplay);
-
-  var bossHP = 100;
-  var bossMaxHP = 100;
-
-  function bossTakeDamage(damage) {
-    bossHP -= damage;
-
-    if (bossHP <= 0) {
-      // ボスキャラクターが倒された場合の処理
-      bossCharacter.style.display = "none";
-      isGameClear = true;
-      showRetryButton();
-    }
-
-    var hpPercentage = (bossHP / bossMaxHP) * 100;
-    bossHPBar.style.width = hpPercentage + "%";
-
-    if (bossHP <= 20) {
-      bossHPBar.style.backgroundColor = "red";
-    }
-  }
-}
 
 function showRetryButton() {
   var retryButton = document.createElement("button");
@@ -1002,6 +990,11 @@ function playSound(soundFile) {
 function playSound(soundFile) {
   var audio = new Audio(soundFile);
   audio.play();
+}
+
+// 追加: ゲームクリアポップアップを表示する関数
+function showGameClearPopup() {
+  gameClearPopup.style.display = "block";
 }
 
 // 追加: ゲームスタートポップアップを表示する関数
