@@ -77,29 +77,26 @@
       display: none;
     }
     
-    #player-hp-display, #boss-hp-display {
-      position: absolute;
-      top: -30px;
+    #player-hp-display {
+      top: 60px; /* 適切な位置に調整してください */
+      left: 150px; /* 適切な位置に調整してください */
       font-family: Arial, sans-serif;
       font-size: 16px;
       color: white;
       text-align: center;
-      width: 100%;
-      transform: scaleX(1) scaleY(1); /* 新しい行 */
+      width: 50%;
     }
 
     /* プレイヤーのHPバーと表示のスタイル */
-    .hp-bar {
-      position: absolute;
-      top: -20px;
-      width: 100%;
+    #player-hp-bar {
+      top: 60px;
+      left: 150px;
+      width: 50%;
       height: 10px;
       background-color: green;
-      transform: scaleX(1) scaleY(1); /* 新しい行 */
     }
     
-    .hp-display {
-      position: absolute;
+    #boss-hp-display {
       top: -40px;
       width: 100%;
       text-align: center;
@@ -118,65 +115,64 @@
       pointer-events: none; /* マウスイベントを受け付けない */
       z-index: 9998; /* バリアがプレイヤーの上に表示されるように */
     }
-#game-start-popup {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 300px;
-  height: 200px;
-  background-color: white;
-  border: 2px solid black;
-  border-radius: 10px;
-  padding: 20px;
-  text-align: center;
-}
-#start-button {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 300px;
-  height: 100px;
-  font-size: 50px;
-  transform: translate(-50%, -50%);
-}
+    #game-start-popup {
+     position: absolute;
+     top: 50%;
+     left: 50%;
+     transform: translate(-50%, -50%);
+     width: 300px;
+     height: 200px;
+     background-color: white;
+     border: 2px solid black;
+     border-radius: 10px;
+     padding: 20px;
+     text-align: center;
+    }
+    #start-button {
+     position: absolute;
+     top: 50%;
+     left: 50%;
+     width: 300px;
+     height: 100px;
+     font-size: 50px;
+     transform: translate(-50%, -50%);
+    }
 
-#game-clear-popup {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 300px;
-  height: 200px;
-  background-color: white;
-  border: 2px solid black;
-  border-radius: 10px;
-  padding: 20px;
-  text-align: center;
-  display: none;
-}
-#play-again-button {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
+    #game-clear-popup {
+     position: absolute;
+     top: 50%;
+     left: 50%;
+     transform: translate(-50%, -50%);
+     width: 300px;
+     height: 200px;
+     background-color: white;
+     border: 2px solid black;
+     border-radius: 10px;
+     padding: 20px;
+     text-align: center;
+     display: none;
+    }
+    #play-again-button {
+     position: absolute;
+     top: 50%;
+     left: 50%;
+     transform: translate(-50%, -50%);
+    }
 
+    #game-info-container {
+     position: absolute;
+     top: -250px;
+     right: -500px;
+     text-align: right;
+     font-size: 30px;
+     color: white;
+     font-family: Arial, sans-serif;
+     display: block; /* テキストを常に表示 */
+    }
 
-#game-info-container {
-  position: absolute;
-  top: -250px;
-  right: -500px;
-  text-align: right;
-  font-size: 30px;
-  color: white;
-  font-family: Arial, sans-serif;
-  display: block; /* テキストを常に表示 */
-}
-
-.game-info {
-  margin-bottom: 5px;
-}
+    .game-info {
+     margin-bottom: 5px;
+    }
   </style>
   <audio id="shot-audio" src="/ショット.mp3"></audio>
   <audio id="explosion-audio" src="/爆発2.mp3"></audio>
@@ -187,17 +183,19 @@
   </head>
 <body>
   <div id="game-container">
-    <div id="player"></div>
+      <div id="player"></div>
+      <div id="player-hp-bar" class="player-hp-bar"></div>
+      <!-- プレイヤーのHPバー -->
+      <div id="player-hp-display" class="player-hp-display"></div>
+</div>
   </div>
   <div id="score-display">Score: 0</div>
   <div id="game-clear">
     <div id="game-clear-message">ゲームクリア！</div> <button id="retry-button">リトライ</button> </div>
-  <!-- プレイヤーのHPバー -->
-  <div id="player-hp-bar" class="hp-bar"></div>
-  <div id="player-hp-display" class="hp-display"></div>
+
   <!-- ボスキャラのHPバー -->
-  <div id="boss-hp-bar" class="hp-bar"></div>
-  <div id="boss-hp-display" class="hp-display"></div>
+  <div id="boss-hp-bar" class="boss-hp-bar"></div>
+  <div id="boss-hp-display" class="boss-hp-display"></div>
   <!-- 追加: ゲームスタートポップアップ -->
   <div id="game-start-popup">
     <button id="start-button">スタート</button>
@@ -212,6 +210,7 @@
   <div id="game-clear-message">ゲームクリア！</div>
   <button id="play-again-button">再度遊ぶ</button>
 </div>
+<div id="cursor-position"></div>
   <script>
 
     var playerX = 100;
@@ -230,11 +229,13 @@
     var retryButton = document.getElementById("retry-button");
     var bossCharacter = null;
     var bossHP = 30;
-    var playerHP = 100;
-    var playerMaxHP = 100;
+    var playerHP = 50;
+    var playerMaxHP = 50;
     var isGameOver = false; // ゲームオーバー状態かどうかのフラグ
+    // カーソル位置を表示する要素を取得します
+    var cursorPositionElement = document.getElementById("cursor-position");
 
-    var isGameClear = false; // ゲームクリア状態かどうかのフラグ
+    var isGameClear = false; // ゲームクリア状態フラグ
     var isShooting = false; // 弾を発射中かどうかのフラグ
     var shootInterval = 500; // 弾の発射間隔（ミリ秒）
     var lastShootTime = 0; // 最後に弾を発射した時刻
@@ -249,30 +250,29 @@
 
     
     // プレイヤーのHPバー要素の作成
-	var playerHPBar = document.createElement("div");
-	playerHPBar.className = "hp-bar";
-	playerHPBar.style.width = "100%";
-	playerHPBar.style.height = "10px";
+	var playerHPBar = document.getElementById("player-hp-bar");
+	playerHPBar.className = "player-hp-bar";
+	playerHPBar.style.width = "50%";
+	playerHPBar.style.height = "20px";
 	playerHPBar.style.backgroundColor = "green";
 	playerHPBar.style.position = "absolute";
-	playerHPBar.style.top = "-20px";
-	playerHPBar.style.left = "0";
-	player.appendChild(playerHPBar);
+	playerHPBar.style.top = "20px";
+	playerHPBar.style.left = "170";
+
 
 	// プレイヤーのHP表示要素の作成
 	var playerHPDisplay = document.createElement("div");
-	playerHPDisplay.className = "hp-display";
-	playerHPDisplay.style.top = "-40px";
-	playerHPDisplay.style.width = "100%";
+	//playerHPDisplay.className = "player-hp-display";
+	playerHPDisplay.style.top = "20px";
+	playerHPDisplay.style.width = "50%";
 	playerHPDisplay.style.textAlign = "center";
 	playerHPDisplay.style.color = "white";
 	playerHPDisplay.style.fontSize = "16px";
 	playerHPDisplay.style.transform = "scaleX(1) scaleY(1)"; /* 新しい行 */
-	player.appendChild(playerHPDisplay);
 
 	// ボスキャラのHPバー要素の作成
 	var bossHPBar = document.createElement("div");
-	bossHPBar.className = "hp-bar";
+	bossHPBar.className = "boss-hp-bar";
 	bossHPBar.style.width = "100%";
 	bossHPBar.style.height = "10px";
 	bossHPBar.style.backgroundColor = "purple";
@@ -282,7 +282,7 @@
 
 	// ボスキャラのHP表示要素の作成
 	var bossHPDisplay = document.createElement("div");
-	bossHPDisplay.className = "hp-display";
+	bossHPDisplay.className = "boss-hp-display";
 	bossHPDisplay.style.top = "-40px";
 	bossHPDisplay.style.width = "100%";
 	bossHPDisplay.style.textAlign = "center";
@@ -291,7 +291,8 @@
 	bossHPDisplay.style.transform = "scaleX(1) scaleY(1)"; /* 新しい行 */
 	
 	// プレイヤーの初期表示を非表示にする
-player.style.display = "none";
+	player.style.display = "none";
+	playerHPBar.style.display = "none";
 
 	document.addEventListener("keydown", function (event) {
 	var key = event.key;
@@ -315,7 +316,15 @@ player.style.display = "none";
     
     window.addEventListener("mousemove", updateCursorCoordinates);
     window.addEventListener("mouseout", stopPlayerMovement);
-    
+    // マウス移動イベントのハンドラを追加します
+document.addEventListener("mousemove", function (event) {
+  // カーソルの X 座標と Y 座標を取得します
+  var cursorX = event.clientX;
+  var cursorY = event.clientY;
+
+  // カーソル位置を表示します
+  cursorPositionElement.textContent = "カーソル位置: X=" + cursorX + ", Y=" + cursorY;
+});
     requestAnimationFrame(movePlayerTowardsCursor);
     updatePlayerPosition();
     
@@ -353,7 +362,9 @@ player.style.display = "none";
       if(isGameStart){
         gameContainer.appendChild(enemy);
         // プレイヤーの初期表示を表示する
-  player.style.display = "block";
+      player.style.display = "block";
+      playerHPBar.style.display = "block";
+      
       }
       // 倒された状態を初期化
       isDefeated[i] = false;
@@ -482,22 +493,7 @@ function isColliding(rect1, rect2) {
   );
 }
     
-function updatePlayerHPBar() {
-  var hpPercentage = (playerHP / playerMaxHP) * 100;
 
-  playerHPBar.style.width = hpPercentage + "%";
-
-  if (playerHP <= 20) {
-    playerHPBar.style.backgroundColor = "red";
-  } else {
-    playerHPBar.style.backgroundColor = "green";
-  }
-}
-
-function updatePlayerHPDisplay() {
-  playerHPDisplay.textContent = "HP: " + playerHP;
-  playerHPDisplay.style.transform = "scaleX(1) scaleY(1)";
-}
     
 function updateCursorCoordinates(event) {
   cursorX = event.clientX;
@@ -514,7 +510,6 @@ function movePlayerTowardsCursor() {
   var targetY = cursorY;
   var speed = 5;
 
-  var playerImage = player.style.backgroundImage;
   if (Math.abs(targetX - playerX) <= speed && Math.abs(targetY - playerY) <= speed) {
     requestAnimationFrame(movePlayerTowardsCursor);
     return;
@@ -760,18 +755,33 @@ function playerTakeDamage(damage) {
   playerHP -= damage;
   updatePlayerHPDisplay();
   
-
   // HPの数値とHPバーを更新する
   playerHPDisplay.textContent = "HP: " + playerHP;
-  playerHPBar.style.width = (playerHP / playerMaxHP) * 100 + "%";
+  playerHPBar.style.width = (playerHP / playerMaxHP) * 50 + "%";
   
-  if (playerHP <= 20) {
+  if (playerHP <= 10) {
   playerHPBar.style.backgroundColor = "red";
 }
 
   if (playerHP <= 0) {
     showGameOverPopup();
   }
+}
+
+function updatePlayerHPBar() {
+  var hpPercentage = (playerHP / playerMaxHP) * 100;
+
+  playerHPBar.style.width = hpPercentage + "%";
+
+  if (playerHP <= 10) {
+    playerHPBar.style.backgroundColor = "red";
+  } else {
+    playerHPBar.style.backgroundColor = "green";
+  }
+}
+
+function updatePlayerHPDisplay() {
+  playerHPDisplay.textContent = "HP: " + playerHP;
 }
 
 // ボスキャラがダメージを受けた時の処理
@@ -786,7 +796,58 @@ function bossTakeDamage(damage) {
     defeatBossCharacter();
   }
 }
-    
+
+// リトライボタンがクリックされた時の処理
+function retryGame() {
+  var gameRetryAudio = document.getElementById("game-retry-audio");
+  gameRetryAudio.currentTime = 0; // 再生位置を先頭に戻す
+  gameRetryAudio.play();
+
+  isGameOver = false; // ゲームオーバー状態を解除する
+  // ゲームオーバーのポップアップを非表示にする
+  var gameOverPopup = document.getElementById("game-over-popup");
+  gameOverPopup.parentNode.removeChild(gameOverPopup);
+
+  // ゲームをリセットして再開するための処理を実装してください
+  // 例えば、プレイヤーと敵の初期位置のリセット、スコアのリセット、HPのリセットなどを行います
+  resetGame();
+  
+  // プレイヤーを再作成する
+  gameContainer.appendChild(player);
+  
+  updatePlayerHPDisplay(); // 追加
+  // GameOverポップアップとリセットボタンを削除する
+  gameContainer.removeChild(gameOverPopup);
+  gameContainer.removeChild(retryButton);
+  
+  // リトライボタンを押下したら音を鳴らす
+  playSound("決定.mp3");
+  bossHP = 30;
+  updateBossHPBar();
+  bossHPBar.style.width = "100%";
+}
+
+function resetGame() {
+  // プレイヤーの初期位置を設定
+  playerX = 100;
+  playerY = 100;
+  playerHPBar.style.backgroundColor = "green";
+  // スコアをリセット
+  score = 0;
+  scoreDisplay.textContent = "Score: " + score;
+
+  // プレイヤーのHPをリセット
+  playerHP = 50;
+  playerHPDisplay.textContent = "HP: " + playerHP;
+  playerHPBar.style.width = "30%";
+
+  // 敵キャラクターの再配置と倒された状態の初期化
+  for (var i = 0; i < enemies.length; i++) {
+    var enemy = enemies[i];
+    enemy.style.display = "block";
+    isDefeated[enemy.id] = false;
+  }
+
 
 // ゲームオーバーのポップアップとリトライボタンを表示する
 function showGameOverPopup() {
@@ -826,57 +887,6 @@ function showGameOverPopup() {
   gameContainer.removeChild(player);
 }
 
-// リトライボタンがクリックされた時の処理
-function retryGame() {
-  var gameRetryAudio = document.getElementById("game-retry-audio");
-  gameRetryAudio.currentTime = 0; // 再生位置を先頭に戻す
-  gameRetryAudio.play();
-
- isGameOver = false; // ゲームオーバー状態を解除する
-  // ゲームオーバーのポップアップを非表示にする
-  var gameOverPopup = document.getElementById("game-over-popup");
-  gameOverPopup.parentNode.removeChild(gameOverPopup);
-
-  // ゲームをリセットして再開するための処理を実装してください
-  // 例えば、プレイヤーと敵の初期位置のリセット、スコアのリセット、HPのリセットなどを行います
-  resetGame();
-  
-  // プレイヤーを再作成する
-  gameContainer.appendChild(player);
-  
-  updatePlayerHPDisplay(); // 追加
-  // GameOverポップアップとリセットボタンを削除する
-  gameContainer.removeChild(gameOverPopup);
-  gameContainer.removeChild(retryButton);
-  
-  // リトライボタンを押下したら音を鳴らす
-  playSound("決定.mp3");
-  bossHP = 30;
-  updateBossHPBar();
-  bossHPBar.style.width = "100%";
-}
-
-function resetGame() {
-  // プレイヤーの初期位置を設定
-  playerX = 100;
-  playerY = 100;
-  playerHPBar.style.backgroundColor = "green";
-  // スコアをリセット
-  score = 0;
-  scoreDisplay.textContent = "Score: " + score;
-
-  // プレイヤーのHPをリセット
-  playerHP = 100;
-  playerHPDisplay.textContent = "HP: " + playerHP;
-  playerHPBar.style.width = "100%";
-
-  // 敵キャラクターの再配置と倒された状態の初期化
-  for (var i = 0; i < enemies.length; i++) {
-    var enemy = enemies[i];
-    enemy.style.display = "block";
-    isDefeated[enemy.id] = false;
-  }
-
   // ボスキャラクターの削除
   if (bossCharacter !== null) {
     gameContainer.removeChild(bossCharacter);
@@ -888,7 +898,6 @@ function resetGame() {
   bossHP = 30;
   updateBossHPBar();
   bossHPBar.style.width = "100%";
-  // ゲームの状態に応じて必要な処理を実装してください
 }
 
 
