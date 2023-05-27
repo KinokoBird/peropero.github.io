@@ -182,7 +182,6 @@
     .game-info {
      margin-bottom: 5px;
     }
-    
 
   </style>
   <audio id="shot-audio" src="/ショット.mp3"></audio>
@@ -191,6 +190,7 @@
   <audio id="game-retry-audio" src="/決定.mp3"></audio>
   <audio id="start-audio" src="/開始.mp3"></audio>
   <audio id="damage-audio" src="/痛い.mp3"></audio>
+  <audio id="bgm-audio" src="bgm.mp3" loop></audio>
   </head>
 <body>
   <div id="game-container">
@@ -246,7 +246,10 @@
     var isGameOver = false; // ゲームオーバー状態かどうかのフラグ
     // カーソル位置を表示する要素を取得します
     var cursorPositionElement = document.getElementById("cursor-position");
-
+    
+    var bgmAudio = new Audio("bgm.wav");
+    
+    
     var isGameClear = false; // ゲームクリア状態フラグ
     var isShooting = false; // 弾を発射中かどうかのフラグ
     var shootInterval = 500; // 弾の発射間隔（ミリ秒）
@@ -260,7 +263,6 @@
     var startButton = document.getElementById("start-button");
     var clearButton = document.getElementById("play-again-button");
 
-    
     // プレイヤーのHPバー要素の作成
 	var playerHPBar = document.getElementById("player-hp-bar");
 	playerHPBar.className = "player-hp-bar";
@@ -273,8 +275,6 @@
 	
 	// プレイヤーアイコン
 	var playerIcon = document.getElementById("hp-icon");
-
-
 
 	// プレイヤーのHP表示要素の作成
 	var playerHPDisplay = document.getElementById("player-hp-display");
@@ -363,6 +363,7 @@ document.addEventListener("mousemove", function (event) {
       startAudio.play();
       isGameStart = true; // ゲームスタート状態にする
       gameStartPopup.style.display = "none"; // ポップアップを非表示にする
+      bgmAudio.play();
       
       for (var i = 1; i <= numberOfEnemies; i++) {
       var enemy = document.createElement("div");
@@ -513,7 +514,6 @@ function isColliding(rect1, rect2) {
 }
     
 
-    
 function updateCursorCoordinates(event) {
   cursorX = event.clientX;
   cursorY = event.clientY;
