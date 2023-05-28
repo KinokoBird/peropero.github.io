@@ -29,6 +29,14 @@
       background-size: cover;
     }
     
+    .item {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      background-image: url('item.png');
+      background-size: cover;
+    }
+    
     .power-ball {
       position: absolute;
       width: 30px;
@@ -203,6 +211,7 @@
       <!-- プレイヤーのHPバー -->
       <div id="player-hp-display" class="player-hp-display"></div>
       <div id="hp-icon"></div>
+
 </div>
   <div id="score-display">Score: 0</div>
   <div id="game-clear">
@@ -227,7 +236,6 @@
 </div>
 <div id="cursor-position"></div>
   <script>
-
     var playerX = 100;
     var playerY = 100;
     var targetX = 100;
@@ -236,6 +244,7 @@
     var player = document.getElementById("player");
     var gameContainer = document.getElementById("game-container");
     var scoreDisplay = document.getElementById("score-display");
+    //var gameItem = document.getElementById("item");
     var score = 0;
     var cursorX = 0;
     var cursorY = 0;
@@ -314,6 +323,7 @@
 	playerHPDisplay.style.display = "none";
 	playerIcon.style.display = "none";
 	gameClearPopup.style.display = "none";
+	//gameItem.style.display = "none";
 
 	document.addEventListener("keydown", function (event) {
 	  var key = event.key;
@@ -353,8 +363,10 @@ document.addEventListener("mousemove", function (event) {
     
     // 敵キャラクターの配置
     var numberOfEnemies = 10;
+    var numberOfItems = 2;
     
-
+    
+    var items = document.getElementsByClassName("item");
     var enemies = document.getElementsByClassName("enemy");
     setInterval(moveEnemies, 100); // 100ミリ秒ごとに敵キャラを移動
     
@@ -368,29 +380,47 @@ document.addEventListener("mousemove", function (event) {
       bgmAudio.play();
       
       for (var i = 1; i <= numberOfEnemies; i++) {
-      var enemy = document.createElement("div");
-      enemy.className = "enemy";
-      enemy.id = i; // 敵キャラクターごとに一意のIDを設定
-      var enemyX, enemyY;
-    
-      do {
-        enemyX = Math.floor(Math.random() * 1500);
-        enemyY = Math.floor(Math.random() * 1000);
-      } while (Math.abs(enemyX - playerX) < 100 && Math.abs(enemyY - playerY) < 100);
-    
-      enemy.style.left = enemyX + "px";
-      enemy.style.top = enemyY + "px";
-      if(isGameStart){
-        gameContainer.appendChild(enemy);
-        // プレイヤーの初期表示を表示する
-      player.style.display = "block";
-      playerHPBar.style.display = "block";
-      playerHPDisplay.style.display = "block";
+        var enemy = document.createElement("div");
+        enemy.className = "enemy";
+        enemy.id = i; // 敵キャラクターごとに一意のIDを設定
+        var enemyX, enemyY;
+        do {
+          enemyX = Math.floor(Math.random() * 1500);
+          enemyY = Math.floor(Math.random() * 1000);
+        } while (Math.abs(enemyX - playerX) < 100 && Math.abs(enemyY - playerY) < 100);
       
+        enemy.style.left = enemyX + "px";
+        enemy.style.top = enemyY + "px";
+        if(isGameStart){
+          gameContainer.appendChild(enemy);
+          // プレイヤーの初期表示を表示する
+        player.style.display = "block";
+        playerHPBar.style.display = "block";
+        playerHPDisplay.style.display = "block";
+      
+        }
+        // 倒された状態を初期化
+        isDefeated[i] = false;
       }
-      // 倒された状態を初期化
-      isDefeated[i] = false;
-    }
+      
+      for (var j = 1; j <= numberOfItems; j++) {
+        var item = document.createElement("div");
+        item.className = "item";
+        item.id = j; // アイテムごとに一意のIDを設定
+        var itemX, itemY;
+        var containerWidth = gameContainer.offsetWidth;
+        var containerHeight = gameContainer.offsetHeight;
+
+        do {
+           itemX = Math.floor(Math.random() * (2200 - 100 + 1)) + 100;
+           itemY = Math.floor(Math.random() * (700 - 100 + 1)) + 100;
+         } while (Math.abs(itemX - playerX) < 100 && Math.abs(itemY - playerY) < 100);
+      
+        item.style.left = itemX + "px";
+        item.style.top = itemY + "px";
+        gameContainer.appendChild(item); // アイテムをゲームコンテナに追加する
+        item.style.display = "block";
+      }
     })
     // 追加: ゲームスタートポップアップの表示
     showGameStartPopup();
@@ -599,8 +629,7 @@ function shootPowerBall() {
         }
       }
       
-      
-    
+
       if (bossCharacter !== null) {
         var bossRect = bossCharacter.getBoundingClientRect();
         var distanceToBoss = getDistance(playerRect, bossRect);
@@ -725,7 +754,7 @@ function defeatEnemy(enemy) {
 		showBossCharacter();
 	}
 }
-    
+
 function showBossCharacter() {
 	if (defeatedEnemies === 10 && bossCharacter === null) {
 		bossCharacter = document.createElement("div");
@@ -1010,7 +1039,7 @@ function createBarrier() {
   if (barrier === null) {
     barrier = document.createElement("div");
     barrier.className = "barrier";
-    gameContainer.appendChild(barrier);
+    //gameContainer.appendChild(barrier);
   }
 }
 
@@ -1032,6 +1061,7 @@ function updateBarrierPosition() {
 
     barrier.style.left = barrierX + "px";
     barrier.style.top = barrierY + "px";
+    gameContainer.appendChild(barrier);
   }
 }
     // バリアの破壊タイマーの処理
