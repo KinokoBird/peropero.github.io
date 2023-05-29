@@ -542,6 +542,7 @@ function moveEnemies() {
 
       var bossX = parseInt(bossCharacter.style.left);
       var bossY = parseInt(bossCharacter.style.top);
+      
 
       var speed = 1; // ボスキャラの移動速度
 
@@ -556,9 +557,11 @@ function moveEnemies() {
       if (playerRect.left < bossRect.left) {
         // プレイヤーがボスキャラの左側に位置している場合、ボスキャラはプレイヤーに近づく
         bossX -= speed;
+        bossCharacter.style.transform = "scaleX(1)"; // ボスキャラが左を向く
       } else if (playerRect.left > bossRect.left) {
         // プレイヤーがボスキャラの右側に位置している場合、ボスキャラはプレイヤーに近づく
         bossX += speed;
+        bossCharacter.style.transform = "scaleX(-1)"; // ボスキャラが右を向く
       }
 
       // 枠の外に出ないように修正
