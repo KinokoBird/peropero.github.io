@@ -203,6 +203,7 @@
   <audio id="start-audio" src="/開始.mp3"></audio>
   <audio id="damage-audio" src="/痛い.mp3"></audio>
   <audio id="bgm-audio" src="bgm.mp3" loop></audio>
+  <audio id="get-audio" src="取得.mp3"></audio>
   </head>
 <body>
   <div id="game-container">
@@ -211,7 +212,6 @@
       <!-- プレイヤーのHPバー -->
       <div id="player-hp-display" class="player-hp-display"></div>
       <div id="hp-icon"></div>
-
 </div>
   <div id="score-display">Score: 0</div>
   <div id="game-clear">
@@ -258,6 +258,7 @@
     var isGameOver = false; // ゲームオーバー状態かどうかのフラグ
     // カーソル位置を表示する要素を取得します
     var cursorPositionElement = document.getElementById("cursor-position");
+    var itemImages = [];
     
     var bgmAudio = new Audio("bgm.wav");
     
@@ -355,6 +356,28 @@ document.addEventListener("mousemove", function (event) {
   // カーソル位置を表示します
   cursorPositionElement.textContent = "カーソル位置: X=" + cursorX + ", Y=" + cursorY;
 });
+
+// プレイヤーの移動イベントリスナーを追加
+player.addEventListener("mousemove", function () {
+  var playerRect = player.getBoundingClientRect();
+  var playerX = playerRect.left + playerRect.width / 2;
+  var playerY = playerRect.top + playerRect.height / 2;
+
+  // アイテムの衝突判定
+  for (var j = 0; j < items.length; j++) {
+    var item = items[j];
+    var itemRect = item.getBoundingClientRect();
+    var itemX = itemRect.left + itemRect.width / 2;
+    var itemY = itemRect.top + itemRect.height / 2;
+
+    var distance = Math.sqrt(Math.pow(playerX - itemX, 2) + Math.pow(playerY - itemY, 2));
+    if (distance < playerRect.width / 2 + itemRect.width / 2) {
+      handleItemCollision(item);
+      break;
+    }
+  }
+});
+
     requestAnimationFrame(movePlayerTowardsCursor);
     updatePlayerPosition();
     
@@ -420,11 +443,70 @@ document.addEventListener("mousemove", function (event) {
         item.style.top = itemY + "px";
         gameContainer.appendChild(item); // アイテムをゲームコンテナに追加する
         item.style.display = "block";
+
       }
-    })
+    });
     // 追加: ゲームスタートポップアップの表示
     showGameStartPopup();
     setInterval(updateBarrierPosition, 16); // 16ミリ秒ごとにバリアの位置を更新
+
+// アイテム画像の配列
+var itemImages = ["item.png", "item.png", "item.png", "item.png", "item.png"]; // 画像のパスを適宜修正してください
+
+// アイテムに触れた際の処理
+function handleItemCollision(item) {
+  var getAudio = document.getElementById("get-audio");
+  getAudio.currentTime = 0; // 再生位置を先頭に戻す
+  getAudio.play();
+  // アイテムを削除
+  gameContainer.removeChild(item);
+
+  // 画面左下にアイテム画像を表示
+  var itemImage = document.createElement("img");
+  itemImage.src = itemImages[0]; // 最初のアイテム画像を表示
+  itemImage.style.position = "absolute";
+  itemImage.style.bottom = "10px";
+  itemImage.style.left = "10px";
+  itemImage.style.width = "20px"; // アイテム画像の幅を調整
+  itemImage.style.height = "20px"; // アイテム画像の高さを調整
+  itemImage.display = "block";
+  gameContainer.appendChild(itemImage);
+
+  // 画面左下に表示されているアイテム画像の右に新たなアイテム画像を表示
+  var existingImages = document.querySelectorAll(".item-image");
+  var imageCount = existingImages.length;
+
+  var newItemImage = document.createElement("img");
+  newItemImage.src = itemImages[imageCount]; // 次のアイテム画像を表示
+  newItemImage.style.position = "absolute";
+  newItemImage.style.bottom = "10px";
+  newItemImage.style.left = 10 + (30 * imageCount) + "px";
+  newItemImage.style.width = "20px"; // アイテム画像の幅を調整
+  newItemImage.style.height = "20px"; // アイテム画像の高さを調整
+  newItemImage.className = "item-image";
+  gameContainer.appendChild(newItemImage);
+}
+
+// ゲームクリア時の処理
+function handleGameClear() {
+  // 画面左下に表示されているアイテム画像を削除
+  for (var i = 0; i < itemImages.length; i++) {
+    var itemImage = itemImages[i];
+    
+    gameContainer.removeChild(itemImage);
+  }
+  itemImages = [];
+}
+
+// ゲームリセット時の処理
+function handleGameReset() {
+  // 画面左下に表示されているアイテム画像を削除
+  for (var i = 0; i < itemImages.length; i++) {
+    var itemImage = itemImages[i];
+    gameContainer.removeChild(itemImage);
+  }
+  itemImages = [];
+}
 
 function moveEnemies() {
   for (var i = 0; i < enemies.length; i++) {
@@ -832,7 +914,7 @@ function retryGame() {
   gameRetryAudio.currentTime = 0; // 再生位置を先頭に戻す
   gameRetryAudio.play();
 
- isGameOver = false; // ゲームオーバー状態を解除する
+  isGameOver = false; // ゲームオーバー状態を解除する
   // ゲームオーバーのポップアップを非表示にする
   var gameOverPopup = document.getElementById("game-over-popup");
   gameOverPopup.parentNode.removeChild(gameOverPopup);
@@ -840,6 +922,9 @@ function retryGame() {
   // ゲームをリセットして再開するための処理を実装してください
   // 例えば、プレイヤーと敵の初期位置のリセット、スコアのリセット、HPのリセットなどを行います
   resetGame();
+  if (isGameOver) {
+    handleGameReset();
+}
   
   // プレイヤーを再作成する
   gameContainer.appendChild(player);
@@ -862,8 +947,7 @@ function replayGame() {
   var gameRetryAudio = document.getElementById("game-retry-audio");
   gameRetryAudio.currentTime = 0; // 再生位置を先頭に戻す
   gameRetryAudio.play();
-
- isGameOver = false; // ゲームオーバー状態を解除する
+  isGameOver = false; // ゲームオーバー状態を解除する
   // ゲームオーバーのポップアップを非表示にする
   var gameClearPopup = document.getElementById("game-clear-popup");
   gameClearPopup.parentNode.removeChild(gameClearPopup);
@@ -1117,6 +1201,8 @@ function showGameClearPopup() {
   // プレイヤーを削除する
   gameContainer.removeChild(player);
   gameClearPopup.style.display = "block";
+  handleGameClear();
+  
 }
 
 // 追加: ゲームスタートポップアップを表示する関数
