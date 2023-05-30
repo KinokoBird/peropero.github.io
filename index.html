@@ -114,14 +114,34 @@
     }
     
     #boss-hp-display {
-      top: -40px;
-      width: 100%;
-      text-align: center;
-      color: white;
+      top: 760px; /* 適切な位置に調整してください */
+      left: 1200px; /* 適切な位置に調整してください */
+      font-family: Arial, sans-serif;
       font-size: 16px;
-      transform: scaleX(1) scaleY(1); /* 新しい行 */
+      color: white;
+      text-align: center;
+      width: 50%;
     }
-    
+    #boss-hp-icon {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      background-image: url('ball.png');
+      background-size: cover;
+      top: 760px;
+      left: 1150px;
+      display: none;
+    }
+
+    /* プレイヤーのHPバーと表示のスタイル */
+    #boss-hp-bar {
+      top: 760px;
+      left: 1200px;
+      width: 50%;
+      height: 10px;
+      background-color: purple;
+      display:none;
+    }
     /* バリアのスタイル */
     .barrier {
       position: absolute;
@@ -212,6 +232,9 @@
       <!-- プレイヤーのHPバー -->
       <div id="player-hp-display" class="player-hp-display"></div>
       <div id="hp-icon"></div>
+      <div id="boss-hp-bar" class="boss-hp-bar"></div>
+      <div id="boss-hp-display" class="boss-hp-display"></div>
+      <div id="boss-hp-icon"></div>
 </div>
   <div id="score-display">Score: 0</div>
   <div id="game-clear">
@@ -220,6 +243,7 @@
   <!-- ボスキャラのHPバー -->
   <div id="boss-hp-bar" class="boss-hp-bar"></div>
   <div id="boss-hp-display" class="boss-hp-display"></div>
+  <div id="boss-hp-icon"></div>
   <!-- 追加: ゲームスタートポップアップ -->
   <div id="game-start-popup">
     <button id="start-button">スタート</button>
@@ -287,6 +311,8 @@
 	
 	// プレイヤーアイコン
 	var playerIcon = document.getElementById("hp-icon");
+	// ボスアイコン
+	var bossIcon = document.getElementById("boss-hp-icon");
 	
 	// プレイヤーのHP表示要素の作成
 	var playerHPDisplay = document.getElementById("player-hp-display");
@@ -299,32 +325,37 @@
 	playerHPDisplay.style.fontSize = "20px";
 
 	// ボスキャラのHPバー要素の作成
-	var bossHPBar = document.createElement("div");
+	var bossHPBar = document.getElementById("boss-hp-bar");
 	bossHPBar.className = "boss-hp-bar";
-	bossHPBar.style.width = "100%";
+	bossHPBar.style.width = "50%";
 	bossHPBar.style.height = "10px";
 	bossHPBar.style.backgroundColor = "purple";
 	bossHPBar.style.position = "absolute";
-	bossHPBar.style.top = "-10px";
-	bossHPBar.style.left = "0";
+	bossHPBar.style.top = "760px";
+	bossHPBar.style.left = "700";
 
 	// ボスキャラのHP表示要素の作成
-	var bossHPDisplay = document.createElement("div");
+	var bossHPDisplay = document.getElementById("boss-hp-display");
 	bossHPDisplay.className = "boss-hp-display";
-	bossHPDisplay.style.top = "-40px";
-	bossHPDisplay.style.width = "100%";
+	bossHPDisplay.style.top = "760px";
+	playerHPDisplay.style.left = "700px";
+	bossHPDisplay.style.width = "50%";
 	bossHPDisplay.style.textAlign = "center";
 	bossHPDisplay.style.color = "white";
 	bossHPDisplay.style.fontSize = "16px";
-	bossHPDisplay.style.transform = "scaleX(1) scaleY(1)"; /* 新しい行 */
 	
-	// プレイヤーの初期表示を非表示にする
+	// プレイヤー・ボスの初期表示を非表示にする
 	player.style.display = "none";
 	playerHPBar.style.display = "none";
 	playerHPDisplay.style.display = "none";
 	playerIcon.style.display = "none";
+	bossIcon.style.display = "none";
 	gameClearPopup.style.display = "none";
+	bossHPBar.style.display = "none";
+	bossHPDisplay.style.display = "none";
 	//gameItem.style.display = "none";
+	
+	var stopBossMovement = false; // ボスキャラの移動停止フラグ
 
 	document.addEventListener("keydown", function (event) {
 	  var key = event.key;
@@ -536,7 +567,7 @@ function moveEnemies() {
     enemy.style.top = enemyY + "px";
 
     // ボスキャラの移動処理
-    if (bossCharacter !== null) {
+    if (bossCharacter !== null && !stopBossMovement) {
       var playerRect = player.getBoundingClientRect();
       var bossRect = bossCharacter.getBoundingClientRect();
 
@@ -801,7 +832,7 @@ function shootPowerBall() {
     }, 2000); // 2秒待機
   }, 5000);
 }
-    
+
 function getDistance(rect1, rect2) {
   var dx = rect1.left + rect1.width / 2 - (rect2.left + rect2.width / 2);
   var dy = rect1.top + rect1.height / 2 - (rect2.top + rect2.height / 2);
@@ -857,9 +888,17 @@ function showBossCharacter() {
 		  Math.floor(Math.random() * (gameContainer.clientHeight - bossCharacter.offsetHeight)) + "px";
 
 		gameContainer.appendChild(bossCharacter);
-
-		bossCharacter.appendChild(bossHPBar);
-		bossCharacter.appendChild(bossHPDisplay);
+		
+		bossHPBar.style.display = "block";
+		bossHPDisplay.style.display = "block";
+		
+		gameContainer.appendChild(bossHPBar);
+		gameContainer.appendChild(bossHPDisplay);
+		bossIcon.style.display = "block";
+		bossHPBar.style.backgroundColor = "purple";
+		//bossCharacter.appendChild(bossHPBar);
+		//bossCharacter.appendChild(bossHPDisplay);
+		stopBossMovement = false;
 	}
 }
 
@@ -899,6 +938,7 @@ function playerTakeDamage(damage) {
 
   if (playerHP <= 0) {
     showGameOverPopup();
+    stopBossMovement = true;
   }
        // アイコンの表示を追加
   var hpIcon = document.getElementById("hp-icon");
@@ -910,6 +950,9 @@ function updatePlayerHPDisplay() {
   playerHPDisplay.textContent = "シキ　HP: " + playerHP;
 }
 
+function updateBossHPDisplay() {
+  playerHPDisplay.textContent = "ボス　HP: " + bossHP;
+}
 
 // リトライボタンがクリックされた時の処理
 function retryGame() {
@@ -927,12 +970,11 @@ function retryGame() {
   resetGame();
   if (isGameOver) {
     handleGameReset();
-}
+  }
   
   // プレイヤーを再作成する
   gameContainer.appendChild(player);
-  
-  updatePlayerHPDisplay(); // 追加
+    updatePlayerHPDisplay(); // 追加
   // GameOverポップアップとリセットボタンを削除する
   gameContainer.removeChild(gameOverPopup);
   gameContainer.removeChild(retryButton);
@@ -940,9 +982,9 @@ function retryGame() {
   // リトライボタンを押下したら音を鳴らす
   playSound("決定.mp3");
   bossHP = 5;
-  updateBossHPBar();
-  bossHPBar.style.width = "100%";
-  
+  //updateBossHPBar();
+  gameContainer.removeChild(bossHPBar);
+  gameContainer.removeChild(bossHPDiplay);
 }
 
 //もう一度遊ぶボタンがクリックされた時の処理
@@ -989,7 +1031,6 @@ function resetGame() {
   playerHPDisplay.textContent = "シキ　HP: " + playerHP;
   playerHPBar.style.width = "50%";
   
-
   // 敵キャラクターの再配置と倒された状態の初期化
   for (var i = 0; i < enemies.length; i++) {
     var enemy = enemies[i];
@@ -1006,7 +1047,7 @@ function resetGame() {
     isDefeated[enemy.id] = false;
   }
 
-  // ボスキャラクターの削除
+   // ボスキャラクターの削除
   if (bossCharacter !== null) {
     gameContainer.removeChild(bossCharacter);
     bossCharacter = null;
@@ -1017,20 +1058,6 @@ function resetGame() {
   bossHP = 5;
   updateBossHPBar();
   bossHPBar.style.width = "100%";
-}
-
-// ボスキャラがダメージを受けた時の処理
-function bossTakeDamage(damage) {
-  bossHP -= damage;
-
-  // HPの数値とHPバーを更新する
-  bossHPDisplay.textContent = "HP: " + bossHP;
-  bossHPBar.style.width = (bossHP / 100) * 100 + "%";
-
-  if (bossHP <= 0) {
-    defeatBossCharacter();
-    showGameClearPopup();
-  }
 }
     
 // ゲームオーバーのポップアップとリトライボタンを表示する
@@ -1069,28 +1096,63 @@ function showGameOverPopup() {
 
   // プレイヤーを削除する
   gameContainer.removeChild(player);
-}
-function showRetryButton() {
-  var retryButton = document.createElement("button");
-  retryButton.textContent = "Retry";
-  retryButton.style.position = "absolute";
-  retryButton.style.top = "50%";
-  retryButton.style.left = "50%";
-  retryButton.style.transform = "translate(-50%, -50%)";
-  retryButton.style.padding = "16px 32px";
-  retryButton.style.fontSize = "24px";
-  retryButton.style.backgroundColor = "white";
-  retryButton.style.border = "none";
-  retryButton.style.cursor = "pointer";
-  retryButton.style.borderRadius = "8px";
-  retryButton.style.fontFamily = "Arial, sans-serif";
-  retryButton.style.color = "black";
-  retryButton.style.boxShadow = "2px 2px 4px rgba(0, 0, 0, 0.2)";
-  retryButton.addEventListener("click", function () {
-  });
 
-  gameContainer.appendChild(retryButton);
+  gameContainer.removeChild(bossHPDisplay);
+  gameContainer.removeChild(bossHPBar);
+  gameContainer.removeChild(bossIcon);
+  
 }
+
+// 追加: ゲームクリアポップアップを表示する関数
+function showGameClearPopup() {
+  isGameOver = true; // ゲームオーバー状態にする
+  
+  // 音声を再生
+  var gameClearAudio = document.getElementById("game-clear-audio");
+  gameClearAudio.currentTime = 0; // 再生位置を先頭に戻す
+  gameClearAudio.play();
+  
+  var gameClearPopup = document.createElement("div");
+  gameClearPopup.id = "game-clear-popup";
+  gameClearPopup.textContent = "Game Clear";
+  gameClearPopup.style.position = "absolute";
+  gameClearPopup.style.top = "50%";
+  gameClearPopup.style.left = "50%";
+  gameClearPopup.style.transform = "translate(-50%, -50%)";
+  gameClearPopup.style.fontFamily = "Arial, sans-serif";
+  gameClearPopup.style.fontSize = "48px";
+  gameClearPopup.style.color = "white";
+  gameClearPopup.style.backgroundColor = "black";
+  gameClearPopup.style.padding = "20px";
+  gameClearPopup.style.zIndex = "9999";
+  gameContainer.appendChild(gameClearPopup);
+
+  var clearButton = document.createElement("div");
+  clearButton.id = "play-clear-button";
+  clearButton.textContent = "もう一度遊ぶ";
+  clearButton.style.display = "block";
+  clearButton.style.backgroundColor = "white";
+  clearButton.style.marginTop = "20px";
+  clearButton.style.color = "black";
+  clearButton.style.padding = "10px 20px";
+  clearButton.style.fontSize = "50px";
+  clearButton.addEventListener("click", replayGame);
+  gameClearPopup.appendChild(clearButton);
+
+  // プレイヤーを削除する
+  gameContainer.removeChild(player);
+  gameClearPopup.style.display = "block";
+  gameContainer.removeChild(bossHPDisplay);
+  gameContainer.removeChild(bossHPBar);
+  gameContainer.removeChild(bossIcon);
+  handleGameClear();
+}
+
+// 追加: ゲームスタートポップアップを表示する関数
+function showGameStartPopup() {
+  gameStartPopup.style.display = "block";
+}
+
 
 var isShiftKeyPressed = false;
 var barrier = null;
@@ -1165,53 +1227,7 @@ function playSound(soundFile) {
   audio.play();
 }
 
-// 追加: ゲームクリアポップアップを表示する関数
-function showGameClearPopup() {
-  isGameOver = true; // ゲームオーバー状態にする
-  
-  // 音声を再生
-  var gameClearAudio = document.getElementById("game-clear-audio");
-  gameClearAudio.currentTime = 0; // 再生位置を先頭に戻す
-  gameClearAudio.play();
-  
-  var gameClearPopup = document.createElement("div");
-  gameClearPopup.id = "game-clear-popup";
-  gameClearPopup.textContent = "Game Clear";
-  gameClearPopup.style.position = "absolute";
-  gameClearPopup.style.top = "50%";
-  gameClearPopup.style.left = "50%";
-  gameClearPopup.style.transform = "translate(-50%, -50%)";
-  gameClearPopup.style.fontFamily = "Arial, sans-serif";
-  gameClearPopup.style.fontSize = "48px";
-  gameClearPopup.style.color = "white";
-  gameClearPopup.style.backgroundColor = "black";
-  gameClearPopup.style.padding = "20px";
-  gameClearPopup.style.zIndex = "9999";
-  gameContainer.appendChild(gameClearPopup);
 
-  var clearButton = document.createElement("div");
-  clearButton.id = "play-clear-button";
-  clearButton.textContent = "もう一度遊ぶ";
-  clearButton.style.display = "block";
-  clearButton.style.backgroundColor = "white";
-  clearButton.style.marginTop = "20px";
-  clearButton.style.color = "black";
-  clearButton.style.padding = "10px 20px";
-  clearButton.style.fontSize = "50px";
-  clearButton.addEventListener("click", replayGame);
-  gameClearPopup.appendChild(clearButton);
-
-  // プレイヤーを削除する
-  gameContainer.removeChild(player);
-  gameClearPopup.style.display = "block";
-  handleGameClear();
-  
-}
-
-// 追加: ゲームスタートポップアップを表示する関数
-function showGameStartPopup() {
-  gameStartPopup.style.display = "block";
-}
   </script>
 </body>
 </html>
