@@ -225,6 +225,7 @@
   <audio id="bgm-audio" src="bgm.mp3" loop></audio>
   <audio id="get-audio" src="取得.mp3"></audio>
   <audio id="barrier-audio" src="バリア.mp3"></audio>
+  <audio id="barrier-touch-audio" src="盾で防御.mp3"></audio>
   </head>
 <body>
   <div id="game-container">
@@ -628,6 +629,7 @@ function checkCollision() {
 
     if (isColliding(playerRect, enemyRect)) {
      if (isShiftKeyPressed) {
+      barrierTouchAudio();
       // バリア表示中はプレイヤーはダメージを受けない
       return;
       }
@@ -644,13 +646,19 @@ function checkCollision() {
       // ボスと接触した場合のダメージ処理
       if (isShiftKeyPressed) {
       // バリア表示中はプレイヤーはダメージを受けない
+         barrierTouchAudio();
          return;
       }
       playerTakeDamage(1);
     }
   }
 }
-    
+
+function barrierTouchAudio() {
+  var barrierTouchAudio = document.getElementById("barrier-touch-audio");
+  barrierTouchAudio.currentTime = 0; // 再生位置を先頭に戻す
+  barrierTouchAudio.play();
+}
 function isColliding(rect1, rect2) {
   return (
     rect1.left < rect2.right &&
