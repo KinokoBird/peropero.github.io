@@ -224,6 +224,7 @@
   <audio id="damage-audio" src="/痛い.mp3"></audio>
   <audio id="bgm-audio" src="bgm.mp3" loop></audio>
   <audio id="get-audio" src="取得.mp3"></audio>
+  <audio id="barrier-audio" src="バリア.mp3"></audio>
   </head>
 <body>
   <div id="game-container">
@@ -286,7 +287,6 @@
     
     var bgmAudio = new Audio("bgm.wav");
     
-    
     var isGameClear = false; // ゲームクリア状態フラグ
     var isShooting = false; // 弾を発射中かどうかのフラグ
     var shootInterval = 500; // 弾の発射間隔（ミリ秒）
@@ -298,9 +298,17 @@
     var gameClearPopup = document.getElementById("game-clear-popup");
     var startButton = document.getElementById("start-button");
     var clearButton = document.getElementById("play-clear-button");
-
+    // 各敵キャラクターの倒された状態を格納する配列
+    var isDefeated = [];
+    // 敵キャラクターの配置
+    var numberOfEnemies = 10;
+    var numberOfItems = 2;
+    var items = document.getElementsByClassName("item");
+    var enemies = document.getElementsByClassName("enemy");
     // プレイヤーのHPバー要素の作成
 	var playerHPBar = document.getElementById("player-hp-bar");
+	
+	
 	playerHPBar.className = "player-hp-bar";
 	playerHPBar.style.width = "50%";
 	playerHPBar.style.height = "20px";
@@ -412,16 +420,7 @@ player.addEventListener("mousemove", function () {
     requestAnimationFrame(movePlayerTowardsCursor);
     updatePlayerPosition();
     
-    // 各敵キャラクターの倒された状態を格納する配列
-    var isDefeated = [];
-    
-    // 敵キャラクターの配置
-    var numberOfEnemies = 10;
-    var numberOfItems = 2;
-    
-    
-    var items = document.getElementsByClassName("item");
-    var enemies = document.getElementsByClassName("enemy");
+
     setInterval(moveEnemies, 100); // 100ミリ秒ごとに敵キャラを移動
     
     // 追加: スタートボタン押下時の処理
@@ -1162,10 +1161,12 @@ document.addEventListener("keydown", function (event) {
 
   if (key === "Shift") {
     isShiftKeyPressed = true;
-
     if (!isBarrierActive) {
       createBarrier();
       isBarrierActive = true;
+      var barrierAudio = document.getElementById("barrier-audio");
+      barrierAudio.currentTime = 0; // 再生位置を先頭に戻す
+      barrierAudio.play();
       barrierStartTime = Date.now(); // バリアの発動時刻を記録
     }
   }
