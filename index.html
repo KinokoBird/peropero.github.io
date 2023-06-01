@@ -209,7 +209,7 @@
      font-family: Arial, sans-serif;
      display: block; /* テキストを常に表示 */
     }
-
+    
     .game-info {
      margin-bottom: 5px;
     }
@@ -262,8 +262,8 @@
 </div>
 <div id="cursor-position"></div>
   <script>
-    var playerX = 100;
-    var playerY = 100;
+    var playerX = null;
+    var playerY = null;
     var targetX = 100;
     var targetY = 100;
     var isFacingRight = true;
@@ -308,7 +308,6 @@
     var enemies = document.getElementsByClassName("enemy");
     // プレイヤーのHPバー要素の作成
 	var playerHPBar = document.getElementById("player-hp-bar");
-	
 	
 	playerHPBar.className = "player-hp-bar";
 	playerHPBar.style.width = "50%";
@@ -362,7 +361,6 @@
 	gameClearPopup.style.display = "none";
 	bossHPBar.style.display = "none";
 	bossHPDisplay.style.display = "none";
-	//gameItem.style.display = "none";
 	
 	var stopBossMovement = false; // ボスキャラの移動停止フラグ
 
@@ -417,9 +415,8 @@ player.addEventListener("mousemove", function () {
     }
   }
 });
-
     requestAnimationFrame(movePlayerTowardsCursor);
-    updatePlayerPosition();
+    //updatePlayerPosition();
     
 
     setInterval(moveEnemies, 100); // 100ミリ秒ごとに敵キャラを移動
@@ -575,41 +572,49 @@ function moveEnemies() {
       var bossY = parseInt(bossCharacter.style.top);
       
 
-      var speed = 1; // ボスキャラの移動速度
+      // ボスの移動処理を追加
+      if (!isGameOver) {
+        var speed = 1;
+        if (playerRect.top < bossRect.top) {
+          bossY -= speed;
+        } else if (playerRect.top > bossRect.top) {
+          bossY += speed;
+        }
 
-      if (playerRect.top < bossRect.top) {
-        // プレイヤーがボスキャラの上に位置している場合、ボスキャラはプレイヤーに近づく
-        bossY -= speed;
-      } else if (playerRect.top > bossRect.top) {
-        // プレイヤーがボスキャラの下に位置している場合、ボスキャラはプレイヤーに近づく
-        bossY += speed;
+        if (playerRect.top < bossRect.top) {
+          // プレイヤーがボスキャラの上に位置している場合、ボスキャラはプレイヤーに近づく
+          bossY -= speed;
+        } else if (playerRect.top > bossRect.top) {
+          // プレイヤーがボスキャラの下に位置している場合、ボスキャラはプレイヤーに近づく
+          bossY += speed;
+        }
+
+        if (playerRect.left < bossRect.left) {
+          // プレイヤーがボスキャラの左側に位置している場合、ボスキャラはプレイヤーに近づく
+          bossX -= speed;
+          bossCharacter.style.transform = "scaleX(1)"; // ボスキャラが左を向く
+        } else if (playerRect.left > bossRect.left) {
+          // プレイヤーがボスキャラの右側に位置している場合、ボスキャラはプレイヤーに近づく
+          bossX += speed;
+          bossCharacter.style.transform = "scaleX(-1)"; // ボスキャラが右を向く
+        }
+
+        // 枠の外に出ないように修正
+        if (bossX < 0) {
+          bossX = 0;
+        } else if (bossX > gameContainer.clientWidth - bossCharacter.clientWidth) {
+          bossX = gameContainer.clientWidth - bossCharacter.clientWidth;
+        }
+
+        if (bossY < 0) {
+          bossY = 0;
+        } else if (bossY > gameContainer.clientHeight - bossCharacter.clientHeight) {
+          bossY = gameContainer.clientHeight - bossCharacter.clientHeight;
+        }
+
+        bossCharacter.style.left = bossX + "px";
+        bossCharacter.style.top = bossY + "px";
       }
-
-      if (playerRect.left < bossRect.left) {
-        // プレイヤーがボスキャラの左側に位置している場合、ボスキャラはプレイヤーに近づく
-        bossX -= speed;
-        bossCharacter.style.transform = "scaleX(1)"; // ボスキャラが左を向く
-      } else if (playerRect.left > bossRect.left) {
-        // プレイヤーがボスキャラの右側に位置している場合、ボスキャラはプレイヤーに近づく
-        bossX += speed;
-        bossCharacter.style.transform = "scaleX(-1)"; // ボスキャラが右を向く
-      }
-
-      // 枠の外に出ないように修正
-      if (bossX < 0) {
-        bossX = 0;
-      } else if (bossX > gameContainer.clientWidth - bossCharacter.clientWidth) {
-        bossX = gameContainer.clientWidth - bossCharacter.clientWidth;
-      }
-
-      if (bossY < 0) {
-        bossY = 0;
-      } else if (bossY > gameContainer.clientHeight - bossCharacter.clientHeight) {
-        bossY = gameContainer.clientHeight - bossCharacter.clientHeight;
-      }
-
-      bossCharacter.style.left = bossX + "px";
-      bossCharacter.style.top = bossY + "px";
     }
     checkCollision();
   }
@@ -822,7 +827,6 @@ function shootPowerBall() {
             }
           }
         }
-    
         updatePowerBall();
       }
       
@@ -925,7 +929,7 @@ function defeatBossCharacter() {
   bossCharacter = null;
   defeatedEnemies = 0;
   showGameClearPopup();
-
+  stopBossMovement = true;
 }
 
 // プレイヤーがダメージを受けた時の処理
@@ -981,7 +985,7 @@ function retryGame() {
   
   // プレイヤーを再作成する
   gameContainer.appendChild(player);
-    updatePlayerHPDisplay(); // 追加
+  updatePlayerHPDisplay(); // 追加
   // GameOverポップアップとリセットボタンを削除する
   gameContainer.removeChild(gameOverPopup);
   gameContainer.removeChild(retryButton);
@@ -992,6 +996,7 @@ function retryGame() {
   //updateBossHPBar();
   gameContainer.removeChild(bossHPBar);
   gameContainer.removeChild(bossHPDiplay);
+  stopBossMovement = false; // ボスの動きを再開する
 }
 
 //もう一度遊ぶボタンがクリックされた時の処理
@@ -1028,6 +1033,8 @@ function resetGame() {
   // プレイヤーの初期位置を設定
   playerX = 100;
   playerY = 100;
+  player.style.left = playerX + "px"; // プレイヤーの位置を瞬時にリセットする
+  player.style.top = playerY + "px";
   playerHPBar.style.backgroundColor = "green";
   // スコアをリセット
   score = 0;
@@ -1065,6 +1072,7 @@ function resetGame() {
   bossHP = 5;
   updateBossHPBar();
   bossHPBar.style.width = "100%";
+  stopBossMovement = true;
 }
     
 // ゲームオーバーのポップアップとリトライボタンを表示する
@@ -1107,7 +1115,7 @@ function showGameOverPopup() {
   gameContainer.removeChild(bossHPDisplay);
   gameContainer.removeChild(bossHPBar);
   gameContainer.removeChild(bossIcon);
-  
+  stopBossMovement = true;
 }
 
 // 追加: ゲームクリアポップアップを表示する関数
@@ -1158,6 +1166,7 @@ function showGameClearPopup() {
 // 追加: ゲームスタートポップアップを表示する関数
 function showGameStartPopup() {
   gameStartPopup.style.display = "block";
+  stopBossMovement = false;
 }
 
 
