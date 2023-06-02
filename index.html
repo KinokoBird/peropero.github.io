@@ -46,6 +46,15 @@
       z-index: 9999;
     }
     
+    .fire-ball {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      background-image: url('fire_ball.png');
+      background-size: cover;
+      z-index: 9999;
+    }
+    
     #dark-ball {
       position: absolute;
       width: 30px;
@@ -106,7 +115,7 @@
       position: absolute;
       width: 50px;
       height: 50px;
-      background-image: url('ball.png');
+      background-image: url('icon.png');
       background-size: cover;
       top: 10px;
       left: 130px;
@@ -134,7 +143,7 @@
       position: absolute;
       width: 50px;
       height: 50px;
-      background-image: url('ball.png');
+      background-image: url('icon.png');
       background-size: cover;
       top: 760px;
       left: 1150px;
@@ -207,20 +216,30 @@
      transform: translate(-50%, -50%);
     }
 
-    #game-info-container {
-     position: absolute;
-     top: -250px;
-     right: -500px;
-     text-align: right;
-     font-size: 30px;
-     color: white;
-     font-family: Arial, sans-serif;
-     display: block; /* テキストを常に表示 */
+    #text-display {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 24px;
+      color: white;
+      line-height: 1.5; /* 行の高さを調整 */
     }
     
-    .game-info {
-     margin-bottom: 5px;
+    #player2 {
+     position: absolute;
+     left: calc(50% - 850px);
+     top: calc(50% - 400px);
+     width: 800px;
+     height: 800px;
     }
+
+    #boss2 {
+      position: absolute;
+      left: calc(50% + 50px);
+      top: calc(50% -400px);
+      width: 800px;
+      height: 800px;
+   }
 
   </style>
   <audio id="shot-audio" src="/ショット.mp3"></audio>
@@ -245,6 +264,13 @@
       <div id="boss-hp-bar" class="boss-hp-bar"></div>
       <div id="boss-hp-display" class="boss-hp-display"></div>
       <div id="boss-hp-icon"></div>
+      <img id="player2" src="shiki_mirror.png" alt="Player 2">
+      <img id="boss2" src="enemy3.png" alt="Boss 2">
+      <div id="text-display">
+        <span>カーソル操作：移動</span><br>
+        <span>弾の発射：「R」キー</span><br>
+        <span>カーソル操作：移動</span>
+     </div>
 </div>
   <div id="score-display">Score: 0</div>
   <div id="game-clear">
@@ -257,13 +283,6 @@
   <!-- 追加: ゲームスタートポップアップ -->
   <div id="game-start-popup">
     <button id="start-button">スタート</button>
-    
-<div id="game-info-container">
-  <div class="game-info">カーソル操作：移動</div>
-  <div class="game-info">弾の発射：「R」キー</div>
-  <div class="game-info">バリア：「Shift」キー</div>
-</div>
-
 <div id="game-clear-popup">
   <div id="game-clear-message">ゲームクリア！</div>
   <button id="play-clear-button">再度遊ぶ</button>
@@ -318,8 +337,10 @@
     var enemies = document.getElementsByClassName("enemy");
     // プレイヤーのHPバー要素の作成
 	var playerHPBar = document.getElementById("player-hp-bar");
-	
+	var player2 = document.getElementById("player2");
+    var boss2 = document.getElementById("boss2");
 	var darkBallElement = document.getElementById("dark-ball");
+	var textDisplay = document.getElementById("text-display");
 	
 	playerHPBar.className = "player-hp-bar";
 	playerHPBar.style.width = "50%";
@@ -436,6 +457,8 @@ player.addEventListener("mousemove", function () {
     
     // 追加: スタートボタン押下時の処理
     startButton.addEventListener("click", function () {
+      player2.style.display = "none";
+      boss2.style.display = "none";
       var startAudio = document.getElementById("start-audio");
       startAudio.currentTime = 0; // 再生位置を先頭に戻す
       startAudio.play();
@@ -487,6 +510,8 @@ player.addEventListener("mousemove", function () {
 
       }
     });
+    // 初期状態では表示しておく
+    textDisplay.style.display = "block";
     // 追加: ゲームスタートポップアップの表示
     showGameStartPopup();
     setInterval(updateBarrierPosition, 16); // 16ミリ秒ごとにバリアの位置を更新
@@ -1125,9 +1150,8 @@ function showGameOverPopup() {
   retryButton.style.marginTop = "20px";
   retryButton.style.padding = "10px 20px";
   retryButton.style.fontSize = "90px";
-  retryButton.addEventListener("click", retryGame);
   gameOverPopup.appendChild(retryButton);
-
+  retryButton.addEventListener("click", retryGame);
   // プレイヤーを削除する
   gameContainer.removeChild(player);
 
@@ -1186,6 +1210,7 @@ function showGameClearPopup() {
 function showGameStartPopup() {
   gameStartPopup.style.display = "block";
   stopBossMovement = false;
+  
 }
 
 
@@ -1286,11 +1311,17 @@ function throwDarkBall() {
   var playerY = playerRect.top + playerRect.height / 2;
 
   var angle = Math.atan2(playerY - bossY, playerX - bossX);
+  
+  
+  var bossImage = bossCharacter.style.backgroundImage;
+  var ballImage = bossImage.includes("enemy3.png") ? "fire_ball.png" : "dark_ball.png";
 
+  darkBallElement.style.backgroundImage = "url('" + ballImage + "')";
   darkBallElement.style.left = bossX + "px";
   darkBallElement.style.top = bossY + "px";
 
   gameContainer.appendChild(darkBallElement);
+  
   darkBallElement.style.display = "block";
   var speed = 5;
   var dx = Math.cos(angle) * speed;
@@ -1320,10 +1351,8 @@ function throwDarkBall() {
       requestAnimationFrame(updateDarkBall);
     }
   }
-
   updateDarkBall();
 }
-
   </script>
 </body>
 </html>
