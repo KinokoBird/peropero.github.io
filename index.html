@@ -270,6 +270,7 @@
 </div>
 <div id="cursor-position"></div>
 <div id="dark-ball"></div>
+
   <script>
     var playerX = null;
     var playerY = null;
@@ -372,6 +373,7 @@
 	gameClearPopup.style.display = "none";
 	bossHPBar.style.display = "none";
 	bossHPDisplay.style.display = "none";
+	darkBallElement.style.display = "none";
 	
 	var stopBossMovement = false; // ボスキャラの移動停止フラグ
 
@@ -899,7 +901,11 @@ function showBossCharacter() {
 		bossCharacter.className = "boss";
 		bossCharacter.style.width = "152px";
 		bossCharacter.style.height = "152px";
-		bossCharacter.style.backgroundImage = "url('enemy3.png')";
+		
+		var random = Math.random();
+		var bossImage = random < 0.5 ? "boss2.png" : "enemy3.png";
+		
+		bossCharacter.style.backgroundImage = "url('" + bossImage + "')";
 		bossCharacter.style.backgroundSize = "cover";
 		bossCharacter.style.position = "absolute";
 
@@ -1285,7 +1291,7 @@ function throwDarkBall() {
   darkBallElement.style.top = bossY + "px";
 
   gameContainer.appendChild(darkBallElement);
-
+  darkBallElement.style.display = "block";
   var speed = 5;
   var dx = Math.cos(angle) * speed;
   var dy = Math.sin(angle) * speed;
