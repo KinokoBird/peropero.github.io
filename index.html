@@ -103,31 +103,24 @@
     }
     
     #player-hp-display {
-      top: 60px; /* 適切な位置に調整してください */
-      left: 150px; /* 適切な位置に調整してください */
+      position: absolute;
+      top: -30px; /* 適切な位置に調整してください */
+      left: 0; /* 適切な位置に調整してください */
       font-family: Arial, sans-serif;
       font-size: 16px;
       color: white;
       text-align: center;
-      width: 50%;
+      width: 100%;
+      z-index: 1;
     }
     #hp-icon {
       position: absolute;
       width: 50px;
       height: 50px;
-      background-image: url('icon.png');
+      background-image: url('p_icon.png');
       background-size: cover;
       top: 10px;
       left: 130px;
-    }
-
-    /* プレイヤーのHPバーと表示のスタイル */
-    #player-hp-bar {
-      top: 60px;
-      left: 150px;
-      width: 50%;
-      height: 10px;
-      background-color: green;
     }
     
     #boss-hp-display {
@@ -139,17 +132,18 @@
       text-align: center;
       width: 50%;
     }
+    
     #boss-hp-icon {
       position: absolute;
       width: 50px;
       height: 50px;
-      background-image: url('icon.png');
+      background-image: url('b_icon.png');
       background-size: cover;
       top: 760px;
       left: 1150px;
       display: none;
     }
-
+    
     /* プレイヤーのHPバーと表示のスタイル */
     #boss-hp-bar {
       top: 760px;
@@ -343,12 +337,10 @@
 	var textDisplay = document.getElementById("text-display");
 	
 	playerHPBar.className = "player-hp-bar";
-	playerHPBar.style.width = "50%";
-	playerHPBar.style.height = "20px";
+	playerHPBar.style.width = "10%";
+	playerHPBar.style.height = "10px";
 	playerHPBar.style.backgroundColor = "green";
 	playerHPBar.style.position = "absolute";
-	playerHPBar.style.top = "30px";
-	playerHPBar.style.left = "170px";
 	
 	// プレイヤーアイコン
 	var playerIcon = document.getElementById("hp-icon");
@@ -360,7 +352,7 @@
 	//playerHPDisplay.className = "player-hp-display";
 	playerHPDisplay.style.top = "10px";
 	playerHPDisplay.style.left = "170px";
-	playerHPDisplay.style.width = "50%";
+	playerHPDisplay.style.width = "10%";
 	playerHPDisplay.style.textAlign = "center";
 	playerHPDisplay.style.color = "white";
 	playerHPDisplay.style.fontSize = "20px";
@@ -368,19 +360,20 @@
 	// ボスキャラのHPバー要素の作成
 	var bossHPBar = document.getElementById("boss-hp-bar");
 	bossHPBar.className = "boss-hp-bar";
-	bossHPBar.style.width = "50%";
+	bossHPBar.style.width = "10%";
 	bossHPBar.style.height = "10px";
 	bossHPBar.style.backgroundColor = "purple";
 	bossHPBar.style.position = "absolute";
 	bossHPBar.style.top = "760px";
 	bossHPBar.style.left = "700";
+	bossHPBar.style.color = "white";
 
 	// ボスキャラのHP表示要素の作成
 	var bossHPDisplay = document.getElementById("boss-hp-display");
 	bossHPDisplay.className = "boss-hp-display";
 	bossHPDisplay.style.top = "760px";
-	playerHPDisplay.style.left = "700px";
-	bossHPDisplay.style.width = "50%";
+	bossHPDisplay.style.left = "700px";
+	bossHPDisplay.style.width = "10%";
 	bossHPDisplay.style.textAlign = "center";
 	bossHPDisplay.style.color = "white";
 	bossHPDisplay.style.fontSize = "16px";
@@ -452,7 +445,6 @@ player.addEventListener("mousemove", function () {
     requestAnimationFrame(movePlayerTowardsCursor);
     //updatePlayerPosition();
     
-
     setInterval(moveEnemies, 100); // 100ミリ秒ごとに敵キャラを移動
     
     // 追加: スタートボタン押下時の処理
@@ -652,6 +644,14 @@ function moveEnemies() {
 
         bossCharacter.style.left = bossX + "px";
         bossCharacter.style.top = bossY + "px";
+        bossHPBar.style.left = bossX + "px"; /* 追加 */
+        bossHPBar.style.top = bossY - 20 + "px"; /* 適切な位置に調整してください */
+        bossHPDisplay.style.left = bossX + "px"; /* 追加 */
+        bossHPDisplay.style.top = bossY - 20 + "px"; /* 適切な位置に調整してください */
+        bossHPBar.textContent = "ボス　HP: " + bossHP;
+        bossIcon.style.left = bossX - 50 + "px"; /* 追加 */
+        bossIcon.style.top = bossY - 30 + "px"; /* 適切な位置に調整してください */
+        
       }
     }
     checkCollision();
@@ -661,7 +661,13 @@ function moveEnemies() {
 function updatePlayerPosition() {
   player.style.left = playerX + "px";
   player.style.top = playerY + "px";
+  playerHPBar.style.left = playerX + "px"; /* 追加 */
+  playerHPBar.style.top = playerY - 20 + "px"; /* 適切な位置に調整してください */
+  playerHPDisplay.style.left = playerX + "px"; /* 追加 */
+  playerHPDisplay.style.top = playerY - 20 + "px"; /* 適切な位置に調整してください */
   player.style.transform = isFacingRight ? "scaleX(-1)" : "scaleX(1)";
+  playerIcon.style.left = playerX - 50 + "px"; /* 追加 */
+  playerIcon.style.top = playerY - 30 + "px"; /* 適切な位置に調整してください */
 }
     
 function checkCollision() {
@@ -933,24 +939,24 @@ function showBossCharacter() {
 		bossCharacter.style.backgroundImage = "url('" + bossImage + "')";
 		bossCharacter.style.backgroundSize = "cover";
 		bossCharacter.style.position = "absolute";
-
+		
 		// ボスキャラの出現位置をランダムに設定する
 		bossCharacter.style.left =
 		  Math.floor(Math.random() * (gameContainer.clientWidth - bossCharacter.offsetWidth)) + "px";
 		bossCharacter.style.top =
 		  Math.floor(Math.random() * (gameContainer.clientHeight - bossCharacter.offsetHeight)) + "px";
-
+		  
 		gameContainer.appendChild(bossCharacter);
 		
+		bossHPBar.style.width = "10%"
 		bossHPBar.style.display = "block";
 		bossHPDisplay.style.display = "block";
 		
+
 		gameContainer.appendChild(bossHPBar);
 		gameContainer.appendChild(bossHPDisplay);
 		bossIcon.style.display = "block";
 		bossHPBar.style.backgroundColor = "purple";
-		//bossCharacter.appendChild(bossHPBar);
-		//bossCharacter.appendChild(bossHPDisplay);
 		stopBossMovement = false;
 	}
 	startDarkBallAttack();
@@ -963,8 +969,6 @@ function updateBossHPBar() {
   if (bossHP <= 20) {
     bossHPBar.style.backgroundColor = "red";
   }
-
-  bossHPDisplay.textContent = "HP: " + bossHP;
 }
 
 function defeatBossCharacter() {
@@ -985,7 +989,7 @@ function playerTakeDamage(damage) {
   
   // HPの数値とHPバーを更新する
   playerHPDisplay.textContent = "シキ　HP: " + playerHP;
-  playerHPBar.style.width = (playerHP / playerMaxHP) * 50 + "%";
+  playerHPBar.style.width = (playerHP / playerMaxHP) * 10 + "%";
 
   if (playerHP <= 10) {
     playerHPBar.style.backgroundColor = "red";
@@ -1000,13 +1004,12 @@ function playerTakeDamage(damage) {
   hpIcon.style.display = "block";
 }
 
-
 function updatePlayerHPDisplay() {
   playerHPDisplay.textContent = "シキ　HP: " + playerHP;
 }
 
 function updateBossHPDisplay() {
-  playerHPDisplay.textContent = "ボス　HP: " + bossHP;
+  bossHPDisplay.textContent = "ボス　HP: " + bossHP;
 }
 
 // リトライボタンがクリックされた時の処理
@@ -1033,6 +1036,7 @@ function retryGame() {
   // GameOverポップアップとリセットボタンを削除する
   gameContainer.removeChild(gameOverPopup);
   gameContainer.removeChild(retryButton);
+
   
   // リトライボタンを押下したら音を鳴らす
   playSound("決定.mp3");
@@ -1059,6 +1063,8 @@ function replayGame() {
   
   // プレイヤーを再作成する
   gameContainer.appendChild(player);
+  playerHPBar.style.display = "block"
+  playerHPDisplay.style.display = "block"
   
   updatePlayerHPDisplay(); // 追加
   // GameOverポップアップとリセットボタンを削除する
@@ -1069,7 +1075,7 @@ function replayGame() {
   playSound("決定.mp3");
   bossHP = 5;
   updateBossHPBar();
-  bossHPBar.style.width = "100%";
+  bossHPBar.style.width = "10%";
   
 }
 
@@ -1087,7 +1093,13 @@ function resetGame() {
   // プレイヤーのHPをリセット
   playerHP = 50;
   playerHPDisplay.textContent = "シキ　HP: " + playerHP;
-  playerHPBar.style.width = "50%";
+  playerHPBar.style.width = "10%";
+  playerHPDisplay.style.display = "block";
+  //playerIcon.style.display = "block"
+  gameContainer.appendChild(playerIcon);
+  
+  bossHPBar.style.width = "10%";
+  gameContainer.appendChild(bossIcon);
   
   // 敵キャラクターの再配置と倒された状態の初期化
   for (var i = 0; i < enemies.length; i++) {
@@ -1154,7 +1166,10 @@ function showGameOverPopup() {
   retryButton.addEventListener("click", retryGame);
   // プレイヤーを削除する
   gameContainer.removeChild(player);
-
+  playerHPDisplay.style.display = "none";
+  playerIcon.style.display = "none";
+  bossIcon.style.display = "none";
+  gameContainer.removeChild(playerIcon);
   gameContainer.removeChild(bossHPDisplay);
   gameContainer.removeChild(bossHPBar);
   gameContainer.removeChild(bossIcon);
@@ -1199,10 +1214,16 @@ function showGameClearPopup() {
 
   // プレイヤーを削除する
   gameContainer.removeChild(player);
+  //gameContainer.removeChild(playerHPBar);
+  playerHPBar.style.display = "none";
+  playerHPDisplay.style.display = "none";
+  playerIcon.style.display = "none";
+  bossIcon.style.display = "none";
   gameClearPopup.style.display = "block";
   gameContainer.removeChild(bossHPDisplay);
   gameContainer.removeChild(bossHPBar);
   gameContainer.removeChild(bossIcon);
+  gameContainer.removeChile(playerIcon);
   handleGameClear();
 }
 
@@ -1212,7 +1233,6 @@ function showGameStartPopup() {
   stopBossMovement = false;
   
 }
-
 
 var isShiftKeyPressed = false;
 var barrier = null;
@@ -1353,6 +1373,7 @@ function throwDarkBall() {
   }
   updateDarkBall();
 }
+
   </script>
 </body>
 </html>
