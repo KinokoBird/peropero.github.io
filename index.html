@@ -1203,12 +1203,14 @@ function showGameClearPopup() {
   var clearButton = document.createElement("div");
   clearButton.id = "play-clear-button";
   clearButton.textContent = "もう一度遊ぶ";
-  clearButton.style.display = "block";
+  clearButton.style.display = "inline-block";
   clearButton.style.backgroundColor = "white";
-  clearButton.style.marginTop = "20px";
+  clearButton.style.marginleft = "20px";
   clearButton.style.color = "black";
   clearButton.style.padding = "10px 20px";
-  clearButton.style.fontSize = "50px";
+  clearButton.style.fontSize = "24px";
+  clearButton.style.width = "50px";
+  clearButton.style.float = "left";// 左寄せに設定
   clearButton.addEventListener("click", replayGame);
   gameClearPopup.appendChild(clearButton);
 
@@ -1226,6 +1228,7 @@ function showGameClearPopup() {
   gameContainer.removeChile(playerIcon);
   handleGameClear();
 }
+
 
 // 追加: ゲームスタートポップアップを表示する関数
 function showGameStartPopup() {
@@ -1371,6 +1374,7 @@ function throwDarkBall() {
       requestAnimationFrame(updateDarkBall);
     }
   }
+
   updateDarkBall();
 }
 
