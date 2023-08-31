@@ -341,6 +341,7 @@
 	playerHPBar.style.height = "10px";
 	playerHPBar.style.backgroundColor = "green";
 	playerHPBar.style.position = "absolute";
+  boss2.style.display = "none";
 	
 	// プレイヤーアイコン
 	var playerIcon = document.getElementById("hp-icon");
@@ -450,7 +451,6 @@ player.addEventListener("mousemove", function () {
     // 追加: スタートボタン押下時の処理
     startButton.addEventListener("click", function () {
       player2.style.display = "none";
-      boss2.style.display = "none";
       var startAudio = document.getElementById("start-audio");
       startAudio.currentTime = 0; // 再生位置を先頭に戻す
       startAudio.play();
